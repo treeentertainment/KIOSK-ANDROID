@@ -1,6 +1,6 @@
 pluginManagement {
     repositories {
-        google()
+        google() // ✅ Google 저장소는 여기로 옮김
         mavenCentral()
         gradlePluginPortal()
     }
@@ -16,4 +16,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "KIOSK-ANDROID"
 include ':app'
-
