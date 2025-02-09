@@ -11,15 +11,15 @@ allprojects {
     }
 }
 
-val kotlinVersion: String by project
-val agpVersion: String by project
-
 buildscript {
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
+        val kotlinVersion: String by project
+        val agpVersion: String by project
+
         classpath("com.android.tools.build:gradle:$agpVersion")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
     }
