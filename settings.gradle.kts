@@ -7,9 +7,12 @@ pluginManagement {
 }
 
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT) // ✅ 프로젝트 `repositories {}` 허용
+    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
     repositories {
         google()
         mavenCentral()
     }
 }
+
+rootProject.name = "KIOSK-ANDROID"
+include(":app") // ✅ 반드시 `app` 모듈 포함
