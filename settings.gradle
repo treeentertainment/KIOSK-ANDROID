@@ -1,6 +1,6 @@
 pluginManagement {
     repositories {
-        google() // ✅ Google 저장소는 여기로 옮김
+        google() // ✅ Android Gradle Plugin은 Google 저장소에서 다운로드됨
         mavenCentral()
         gradlePluginPortal()
     }
@@ -9,10 +9,7 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        google()
+        google() // ✅ Google 저장소를 첫 번째로 배치
         mavenCentral()
     }
 }
-
-rootProject.name = "KIOSK-ANDROID"
-include ':app'
