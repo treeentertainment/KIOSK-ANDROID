@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appwrite 로그인</title>
+    <script>
+        function googleLogin() {
+            AndroidApp.googleLogin();
+        }
+
+        function checkAuthState() {
+            AndroidApp.checkAuthState();
+        }
+
+        function logout() {
+            AndroidApp.logout();
+        }
+
+        function getUserData(email) {
+            AndroidApp.getUserData(email);
+        }
+
+        function onLoginSuccess(email) {
+            document.getElementById("status").innerText = "로그인 성공: " + email;
+            document.getElementById("loginBtn").style.display = "none";
+            document.getElementById("logoutBtn").style.display = "block";
+            getUserData(email);
+        }
+
+        function onLoginFailure() {
+            document.getElementById("status").innerText = "로그인되지 않음";
+            document.getElementById("loginBtn").style.display = "block";
+            document.getElementById("logoutBtn").style.display = "none";
+        }
+
+        function onLogoutSuccess() {
+            document.getElementById("status").innerText = "로그아웃됨";
+            document.getElementById("loginBtn").style.display = "block";
+            document.getElementById("logoutBtn").style.display = "none";
+        }
+
+        function onUserDataReceived(name) {
+            document.getElementById("userName").innerText = "이름: " + name;
+        }
+
+        function onUserInactive() {
+            document.getElementById("status").innerText = "비활성화된 계정";
+        }
+
+        function onUserNotFound() {
+            document.getElementById("status").innerText = "사용자 정보를 찾을 수 없음";
+        }
+
+        window.onload = function() {
+            checkAuthState();
+        }
+    </script>
+</head>
+<body>
+    <h1>Appwrite 로그인 테스트</h1>
+    <p id="status">확인 중...</p>
+    <p id="userName"></p>
+    <button id="loginBtn" onclick="googleLogin()">Google 로그인</button>
+    <button id="logoutBtn" onclick="logout()" style="display:none;">로그아웃</button>
+</body>
+</html>
