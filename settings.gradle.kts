@@ -5,14 +5,12 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
-
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     repositories {
         google()
         mavenCentral()
     }
 }
-
 rootProject.name = "KIOSK-ANDROID"
-include(":app") // ✅ 반드시 `app` 모듈 포함
+include(":app")
