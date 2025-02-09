@@ -62,32 +62,35 @@ class MainActivity : AppCompatActivity() {
         }
 
         private fun startOAuthLogin() {
+    lifecycleScope.launch {
+        try {
+            val loginUrl = account.createOAuth2Session(
+                activity = this@MainActivity,
+                provider = OAuthProvider.GOOGLE
+            )
+
+            // ✅ WebView에서 로그인 진행 로그 확인
             runOnUiThread {
-                try {
-                    val loginUrl = account.createOAuth2Session(
-                        activity = this@MainActivity,
-                        provider = OAuthProvider.GOOGLE
-                    )
+                webView.evaluateJavascript("console.log('OAuth Login URL: $loginUrl')", null)
+                webView.evaluateJavascript("document.body.innerHTML += '<p>Redirecting to login...</p>'", null)
 
-                    // ✅ WebView에서 로그인 진행 로그 확인
-                    webView.evaluateJavascript("console.log('OAuth Login URL: $loginUrl')", null)
-                    webView.evaluateJavascript("document.body.innerHTML += '<p>Redirecting to login...</p>'", null)
+                // ✅ 기본 브라우저에서 로그인 실행
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(loginUrl))
+                startActivity(intent)
+            }
 
-                    // ✅ 기본 브라우저에서 로그인 실행
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(loginUrl))
-                    startActivity(intent)
-
-                } catch (e: Exception) {
-                    val errorMessage = e.message ?: "Unknown error"
-                    runOnUiThread {
-                        // WebView에서 에러 메시지 출력 (Android Studio 없이 확인 가능)
-                        webView.evaluateJavascript("console.log('OAuthLoginError: $errorMessage')", null)
-                        webView.evaluateJavascript("document.body.innerHTML += '<p style=\"color:red;\">Login Error: $errorMessage</p>'", null)
-                        webView.evaluateJavascript("onLoginFailure('$errorMessage')", null)
-                    }
-                }
+        } catch (e: Exception) {
+            val errorMessage = e.message ?: "Unknown error"
+            runOnUiThread {
+                // WebView에서 에러 메시지 출력 (Android Studio 없이 확인 가능)
+                webView.evaluateJavascript("console.log('OAuthLoginError: $errorMessage')", null)
+                webView.evaluateJavascript("document.body.innerHTML += '<p style=\"color:red;\">Login Error: $errorMessage</p>'", null)
+                webView.evaluateJavascript("onLoginFailure('$errorMessage')", null)
             }
         }
+    }
+}
+
 
         @JavascriptInterface
         fun checkAuthState() {
