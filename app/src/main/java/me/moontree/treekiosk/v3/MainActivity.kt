@@ -1,6 +1,8 @@
 package me.moontree.treekiosk.v3
 
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.webkit.*
@@ -22,6 +24,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // WebView 설정
         webView = findViewById(R.id.webView)
         webView.settings.javaScriptEnabled = true
         webView.settings.domStorageEnabled = true
@@ -31,9 +34,10 @@ class MainActivity : AppCompatActivity() {
 
         webView.loadUrl("file:///android_asset/index.html")
 
+        // Appwrite 클라이언트 초기화
         client = Client(this)
-            .setEndpoint("https://cloud.appwrite.io/v1")
-            .setProject("treekiosk")
+            .setEndpoint("https://cloud.appwrite.io/v1") // ✅ Appwrite API 엔드포인트
+            .setProject("treekiosk") // ✅ 프로젝트 ID 입력
 
         account = Account(client)
     }
@@ -43,48 +47,75 @@ class MainActivity : AppCompatActivity() {
         fun googleLogin() {
             lifecycleScope.launch {
                 try {
-                    // ✅ 1. 기존 로그인된 사용자 확인
-                    val user = account.get()
-                    Log.d("Login", "User already logged in: ${user.email}")
+                    val user = account.get() // ✅ 기존 세션 확인
                     runOnUiThread {
                         webView.evaluateJavascript("onLoginSuccess('${user.email}')", null)
                     }
                 } catch (e: Exception) {
-                    Log.d("Login", "No existing session, starting OAuth login")
-                    startOAuthLogin() // ✅ 기존 세션 없으면 OAuth 로그인 시작
+                    // 세션이 없으면 OAuth 로그인 시작
+                    runOnUiThread {
+                        webView.evaluateJavascript("onLoginFailure('No session found. Redirecting to OAuth login.')", null)
+                    }
+                    startOAuthLogin()
                 }
             }
         }
 
         private fun startOAuthLogin() {
             runOnUiThread {
-                lifecycleScope.launch {
-                    try {
-                        // ✅ 2. 기존 사용자가 존재하는지 확인 (이메일 중복 방지)
-                        val userList = account.listIdentities() // Appwrite에 로그인된 계정 리스트 확인
-                        if (userList.identities.isNotEmpty()) {
-                            val user = account.get()
-                            runOnUiThread {
-                                webView.evaluateJavascript("onLoginSuccess('${user.email}')", null)
-                            }
-                            return@launch
-                        }
+                try {
+                    val loginUrl = account.createOAuth2Session(
+                        activity = this@MainActivity,
+                        provider = OAuthProvider.GOOGLE
+                    )
 
-                        // ✅ 3. 기존 세션이 없을 경우 OAuth2 로그인 수행
-                        account.createOAuth2Session(
-                            activity = this@MainActivity,
-                            provider = OAuthProvider.GOOGLE
-                        )
+                    // ✅ WebView에서 로그인 진행 로그 확인
+                    webView.evaluateJavascript("console.log('OAuth Login URL: $loginUrl')", null)
+                    webView.evaluateJavascript("document.body.innerHTML += '<p>Redirecting to login...</p>'", null)
 
-                        val user = account.get()
-                        runOnUiThread {
-                            webView.evaluateJavascript("onLoginSuccess('${user.email}')", null)
-                        }
-                    } catch (e: Exception) {
-                        Log.e("OAuthLoginError", e.message ?: "Unknown error")
-                        runOnUiThread {
-                            webView.evaluateJavascript("onLoginFailure()", null)
-                        }
+                    // ✅ 기본 브라우저에서 로그인 실행
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(loginUrl))
+                    startActivity(intent)
+
+                } catch (e: Exception) {
+                    val errorMessage = e.message ?: "Unknown error"
+                    runOnUiThread {
+                        // WebView에서 에러 메시지 출력 (Android Studio 없이 확인 가능)
+                        webView.evaluateJavascript("console.log('OAuthLoginError: $errorMessage')", null)
+                        webView.evaluateJavascript("document.body.innerHTML += '<p style=\"color:red;\">Login Error: $errorMessage</p>'", null)
+                        webView.evaluateJavascript("onLoginFailure('$errorMessage')", null)
+                    }
+                }
+            }
+        }
+
+        @JavascriptInterface
+        fun checkAuthState() {
+            lifecycleScope.launch {
+                try {
+                    val user = account.get()
+                    runOnUiThread {
+                        webView.evaluateJavascript("onLoginSuccess('${user.email}')", null)
+                    }
+                } catch (e: Exception) {
+                    runOnUiThread {
+                        webView.evaluateJavascript("onLoginFailure('Not logged in')", null)
+                    }
+                }
+            }
+        }
+
+        @JavascriptInterface
+        fun logout() {
+            lifecycleScope.launch {
+                try {
+                    account.deleteSession("current")
+                    runOnUiThread {
+                        webView.evaluateJavascript("onLogoutSuccess()", null)
+                    }
+                } catch (e: Exception) {
+                    runOnUiThread {
+                        webView.evaluateJavascript("console.log('LogoutError: ${e.message}')", null)
                     }
                 }
             }
