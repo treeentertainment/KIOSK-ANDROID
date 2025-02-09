@@ -1,0 +1,36 @@
+name: Android Build
+
+on:
+  push:
+    branches:
+      - main  # 또는 개발 브랜치 이름
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build Android App
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17' # 프로젝트에 맞는 Java 버전 사용
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew assembleDebug
+        
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
