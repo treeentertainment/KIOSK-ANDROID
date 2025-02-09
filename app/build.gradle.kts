@@ -1,3 +1,5 @@
+import org.gradle.api.JavaVersion // 올바른 JavaVersion 패키지 import
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -26,15 +28,18 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = org.jetbrains.kotlin.utils.JavaVersion.VERSION_17 // Correct syntax
-        targetCompatibility = org.jetbrains.kotlin.utils.JavaVersion.VERSION_17 // Correct syntax
-        toolchain {
-            languageVersion.set(org.jetbrains.kotlin.utils.JavaVersion.of(17)) // Correct syntax
-        }
+        sourceCompatibility = JavaVersion.VERSION_17 // 올바른 JavaVersion 참조
+        targetCompatibility = JavaVersion.VERSION_17 // 올바른 JavaVersion 참조
     }
 
     kotlinOptions {
-        jvmTarget = "17" // Correct syntax (String)
+        jvmTarget = "17"
+    }
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17)) // 올바른 toolchain 설정
     }
 }
 
@@ -54,7 +59,4 @@ dependencies {
 
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
-
-    // Consider removing if not needed:
-    // implementation("androidx.legacy:legacy-support-core-utils:1.1.0.0")
 }
