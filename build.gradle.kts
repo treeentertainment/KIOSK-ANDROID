@@ -1,18 +1,7 @@
-plugins {
-    id("com.android.application") version "8.2.0" apply false
-    id("com.android.library") version "8.2.0" apply false
-    id("org.jetbrains.kotlin.android") version "1.9.20" apply false // Or latest
-}
-
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
-// THIS IS THE KEY CHANGE:  Declare the properties *before* the buildscript block
+// 프로젝트 속성(properties)에서 값 불러오기
 val agpVersion: String by project
 val kotlinVersion: String by project
+
 buildscript {
     repositories {
         google()
@@ -21,6 +10,19 @@ buildscript {
     dependencies {
         classpath("com.android.tools.build:gradle:$agpVersion")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
+    }
+}
+
+plugins {
+    id("com.android.application") version agpVersion apply false
+    id("com.android.library") version agpVersion apply false
+    id("org.jetbrains.kotlin.android") version kotlinVersion apply false
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
     }
 }
 
