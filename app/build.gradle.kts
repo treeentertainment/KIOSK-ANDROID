@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "me.moontree.treekiosk.v3"
-        minSdk = 20
+        minSdk = 21
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
