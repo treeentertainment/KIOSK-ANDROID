@@ -20,7 +20,9 @@ buildscript {
     }
     dependencies {
         classpath("com.android.tools.build:gradle:8.2.2") // Or latest
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}") { // Correct way
+            // You can optionally add configuration here if needed
+        }
     }
 }
 
