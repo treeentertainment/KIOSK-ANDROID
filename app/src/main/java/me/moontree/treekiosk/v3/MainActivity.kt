@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
             .setGoogleIdTokenRequestOptions(
                 BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
                     .setSupported(true)
-                    .setServerClientId("YOUR_GOOGLE_CLIENT_ID") // Google OAuth Client ID 설정
+                    .setServerClientId("719927565453-c30tcpgoq831028e3mb41trlrl91bgb3.apps.googleusercontent.com") // Google OAuth Client ID 설정
                     .setFilterByAuthorizedAccounts(false)
                     .build()
             )
