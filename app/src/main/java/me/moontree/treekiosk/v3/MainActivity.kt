@@ -69,21 +69,24 @@ class MainActivity : AppCompatActivity() {
                 provider = OAuthProvider.GOOGLE
             )
 
-            // ✅ OAuth 로그인 실행 후 UI 업데이트
+            // ✅ 로그인 성공 후, 사용자 정보 가져오기
+            val user = account.get()
+
             runOnUiThread {
-                webView.evaluateJavascript("document.body.innerHTML += '<p>Redirecting to login...</p>'", null)
+                webView.evaluateJavascript("onLoginSuccess('${user.email}')", null)
             }
 
         } catch (e: Exception) {
             val errorMessage = e.message ?: "Unknown error"
+
             runOnUiThread {
-                // WebView에서 에러 메시지 출력 (Android Studio 없이 확인 가능)
-                webView.evaluateJavascript("document.body.innerHTML += '<p style=\"color:red;\">Login Error: $errorMessage</p>'", null)
+                // ✅ 로그인 실패 시 WebView에서 메시지 표시
                 webView.evaluateJavascript("onLoginFailure('$errorMessage')", null)
             }
         }
     }
 }
+
 
         @JavascriptInterface
         fun checkAuthState() {
