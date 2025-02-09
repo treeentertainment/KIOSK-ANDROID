@@ -1,8 +1,6 @@
-// Root build.gradle file
 buildscript {
     repositories {
-        google() // ✅ 여기를 제거하고 settings.gradle로 이동
-        mavenCentral()
+        mavenCentral() // ✅ `google()`과 기타 저장소 제거
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:8.2.0'
@@ -12,8 +10,7 @@ buildscript {
 
 allprojects {
     repositories {
-        // ❌ 여기에 google()를 추가하지 말 것
-        mavenCentral()
+        mavenCentral() // ✅ 여기에서도 google() 제거
     }
 }
 
