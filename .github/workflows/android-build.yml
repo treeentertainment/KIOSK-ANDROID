@@ -3,7 +3,7 @@ name: Android Build
 on:
   push:
     branches:
-      - main  # 또는 개발 브랜치 이름
+      - main
   pull_request:
     branches:
       - main
@@ -21,14 +21,17 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '17' # 프로젝트에 맞는 Java 버전 사용
+          java-version: '17'
+
+      - name: Generate Gradle Wrapper
+        run: ./gradlew wrapper || ./gradlew.bat wrapper
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
       - name: Build with Gradle
         run: ./gradlew assembleDebug
-        
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
