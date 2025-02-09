@@ -3,24 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tree Kiosk</title>
+    <title>Appwrite OAuth Login</title>
     <script>
         function login() {
             window.AndroidApp.googleLogin();
         }
 
         function onLoginSuccess(email) {
-            document.getElementById("status").innerText = "로그인 성공: " + email;
+            document.getElementById('status').innerHTML = `<p style="color:green;">로그인 성공: ${email}</p>`;
         }
 
-        function onLoginFailure() {
-            document.getElementById("status").innerText = "로그인 실패";
+        function onLoginFailure(message) {
+            document.getElementById('status').innerHTML = `<p style="color:red;">로그인 실패: ${message}</p>`;
+        }
+
+        function logout() {
+            window.AndroidApp.logout();
+        }
+
+        function onLogoutSuccess() {
+            document.getElementById('status').innerHTML = `<p style="color:blue;">로그아웃 성공</p>`;
+        }
+
+        function checkAuthState() {
+            window.AndroidApp.checkAuthState();
         }
     </script>
 </head>
 <body>
-    <h1>Tree Kiosk</h1>
+    <h2>Appwrite OAuth 로그인 테스트</h2>
     <button onclick="login()">Google 로그인</button>
-    <p id="status">로그인 상태: 없음</p>
+    <button onclick="checkAuthState()">로그인 상태 확인</button>
+    <button onclick="logout()">로그아웃</button>
+    <div id="status"></div>
 </body>
 </html>
