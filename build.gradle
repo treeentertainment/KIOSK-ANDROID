@@ -1,14 +1,18 @@
 buildscript {
+    repositories {
+        google()  // ✅ Android Gradle Plugin 저장소
+        mavenCentral()  // ✅ Kotlin 플러그인 저장소
+    }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.2.2' // ✅ 최신 버전으로 변경
+        classpath 'com.android.tools.build:gradle:8.2.2'  // ✅ 최신 버전
         classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0'
     }
 }
 
-
 allprojects {
     repositories {
-        mavenCentral() // ✅ 여기에서도 google() 제거
+        google()
+        mavenCentral()
     }
 }
 
