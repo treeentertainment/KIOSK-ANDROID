@@ -10,16 +10,15 @@ allprojects {
         mavenCentral()
     }
 }
-
+// THIS IS THE KEY CHANGE:  Declare the properties *before* the buildscript block
+val agpVersion: String by project
+val kotlinVersion: String by project
 buildscript {
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        val kotlinVersion: String by project
-        val agpVersion: String by project
-
         classpath("com.android.tools.build:gradle:$agpVersion")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
     }
