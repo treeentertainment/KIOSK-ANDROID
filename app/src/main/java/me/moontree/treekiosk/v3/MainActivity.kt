@@ -1,117 +1,117 @@
 package me.moontree.treekiosk.v3
 
-import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.webkit.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.google.android.gms.auth.api.identity.BeginSignInRequest
+import com.google.android.gms.auth.api.identity.Identity
+import com.google.android.gms.auth.api.identity.SignInClient
 import io.appwrite.Client
 import io.appwrite.ID
-import io.appwrite.Query
 import io.appwrite.services.Account
-import io.appwrite.services.Databases
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var webView: WebView
-    private lateinit var client: Client
+    private lateinit var googleSignInClient: SignInClient
     private lateinit var account: Account
-    private lateinit var database: Databases
 
-    @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main) // ✅ XML 레이아웃 파일 존재 확인
 
-        webView = findViewById(R.id.webView) // ✅ ID가 XML에서 정의되어 있어야 함
-        webView.settings.javaScriptEnabled = true
-        webView.settings.domStorageEnabled = true
-        webView.settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-        webView.webViewClient = WebViewClient()
-        webView.webChromeClient = WebChromeClient()
-        webView.addJavascriptInterface(WebAppInterface(), "AndroidApp")
-
-        webView.loadUrl("file:///android_asset/index.html")
-
-        client = Client(this)
+        // Appwrite 초기화
+        val client = Client(this)
             .setEndpoint("https://cloud.appwrite.io/v1")
             .setProject("treekiosk")
 
         account = Account(client)
-        database = Databases(client)
+
+        // Google Sign-In 초기화
+        googleSignInClient = Identity.getSignInClient(this)
     }
 
-    inner class WebAppInterface {
+    // Google 로그인 요청
+    private val signInLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            result.data?.let { handleSignInResult(it) }
+        }
+    }
 
-        @JavascriptInterface
-        fun googleLogin() {
-            runOnUiThread {
-                val authUrl = "https://cloud.appwrite.io/v1/account/sessions/oauth2/google?success=file:///android_asset/index.html"
-                webView.loadUrl(authUrl)
+    // Google 로그인 버튼 클릭 시 실행
+    fun signInWithGoogle() {
+        val signInRequest = BeginSignInRequest.builder()
+            .setGoogleIdTokenRequestOptions(
+                BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
+                    .setSupported(true)
+                    .setServerClientId("YOUR_GOOGLE_CLIENT_ID") // Google OAuth Client ID 설정
+                    .setFilterByAuthorizedAccounts(false)
+                    .build()
+            )
+            .build()
+
+        googleSignInClient.beginSignIn(signInRequest)
+            .addOnSuccessListener { result ->
+                signInLauncher.launch(result.pendingIntent.intent)
+            }
+            .addOnFailureListener { e ->
+                Log.e("GoogleSignIn", "Google Sign-In failed: ${e.message}")
+            }
+    }
+
+    // Google 로그인 결과 처리
+    private fun handleSignInResult(data: Intent) {
+        val credential = googleSignInClient.getSignInCredentialFromIntent(data)
+        val googleIdToken = credential.googleIdToken
+
+        if (googleIdToken != null) {
+            // Appwrite에 OAuth 로그인 요청
+            authenticateWithAppwrite(googleIdToken)
+        } else {
+            Log.e("GoogleSignIn", "Google ID Token is null")
+        }
+    }
+
+    // 3. Appwrite 세션 생성
+    private fun authenticateWithAppwrite(googleIdToken: String) {
+        lifecycleScope.launch {
+            try {
+                val session = account.createOAuth2Session(
+                    provider = "google",
+                    success = "app://success",
+                    failure = "app://failure"
+                )
+                Log.d("AppwriteAuth", "로그인 성공: ${session.userId}")
+            } catch (e: Exception) {
+                Log.e("AppwriteAuth", "로그인 실패: ${e.message}")
             }
         }
+    }
 
-        @JavascriptInterface
-        fun checkAuthState() {
-            lifecycleScope.launch {
-                try {
-                    val user = account.get()
-                    runOnUiThread {
-                        webView.evaluateJavascript("onLoginSuccess('${user.email}')", null)
-                    }
-                } catch (e: Exception) {
-                    runOnUiThread {
-                        webView.evaluateJavascript("onLoginFailure()", null)
-                    }
-                }
+    // 4. 인증 상태 확인
+    fun checkAuthState() {
+        lifecycleScope.launch {
+            try {
+                val user = account.get()
+                Log.d("AuthState", "현재 로그인된 사용자: ${user.email}")
+            } catch (e: Exception) {
+                Log.e("AuthState", "로그인된 사용자 없음")
             }
         }
+    }
 
-        @JavascriptInterface
-        fun logout() {
-            lifecycleScope.launch {
-                try {
-                    account.deleteSession("current")
-                    runOnUiThread {
-                        webView.evaluateJavascript("onLogoutSuccess()", null)
-                    }
-                } catch (e: Exception) {
-                    Log.e("LogoutError", e.message ?: "Unknown error")
-                }
-            }
-        }
-
-        @JavascriptInterface
-        fun getUserData(email: String) {
-            lifecycleScope.launch {
-                try {
-                    val response = database.listDocuments(
-                        "tree-kiosk",
-                        "owner",
-                        listOf(Query.equal("email", email))
-                    )
-                    if (response.documents.isNotEmpty()) {
-                        val document = response.documents[0]
-                        val name = document.data["name"].toString()
-                        val active = document.data["active"] as Boolean
-
-                        runOnUiThread {
-                            if (active) {
-                                webView.evaluateJavascript("onUserDataReceived('$name')", null)
-                            } else {
-                                webView.evaluateJavascript("onUserInactive()", null)
-                            }
-                        }
-                    } else {
-                        runOnUiThread {
-                            webView.evaluateJavascript("onUserNotFound()", null)
-                        }
-                    }
-                } catch (e: Exception) {
-                    Log.e("GetUserDataError", e.message ?: "Unknown error")
-                }
+    // 5. 로그아웃 기능
+    fun logout() {
+        lifecycleScope.launch {
+            try {
+                account.deleteSession("current")
+                Log.d("Logout", "로그아웃 성공")
+            } catch (e: Exception) {
+                Log.e("Logout", "로그아웃 실패: ${e.message}")
             }
         }
     }
