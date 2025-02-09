@@ -1,6 +1,6 @@
-// 프로젝트 속성(properties)에서 값 불러오기
-val agpVersion: String by project
-val kotlinVersion: String by project
+// gradle.properties에서 값 로드
+val agpVersion = project.findProperty("agpVersion") as String? ?: "8.2.0"
+val kotlinVersion = project.findProperty("kotlinVersion") as String? ?: "1.9.20"
 
 buildscript {
     repositories {
