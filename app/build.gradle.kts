@@ -42,7 +42,8 @@ dependencies {
     // ViewPager 및 CoordinatorLayout 최신화
     implementation("androidx.viewpager2:viewpager2:1.1.0")
     implementation("androidx.coordinatorlayout:coordinatorlayout:1.2.0")
-
+    implementation(platform("com.squareup.okhttp3:okhttp-bom:4.10.0"))
+    implementation("com.squareup.okhttp3:okhttp")
     // Legacy 지원 제거 (가능하면 사용 X)
     implementation("androidx.legacy:legacy-support-core-utils:1.0.0") // 제거 고려
 }
