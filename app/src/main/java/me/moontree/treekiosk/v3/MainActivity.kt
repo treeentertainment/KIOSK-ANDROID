@@ -41,19 +41,47 @@ class MainActivity : AppCompatActivity() {
     inner class WebAppInterface {
         @JavascriptInterface
         fun googleLogin() {
+            lifecycleScope.launch {
+                try {
+                    // ✅ 1. 기존 로그인된 사용자 확인
+                    val user = account.get()
+                    Log.d("Login", "User already logged in: ${user.email}")
+                    runOnUiThread {
+                        webView.evaluateJavascript("onLoginSuccess('${user.email}')", null)
+                    }
+                } catch (e: Exception) {
+                    Log.d("Login", "No existing session, starting OAuth login")
+                    startOAuthLogin() // ✅ 기존 세션 없으면 OAuth 로그인 시작
+                }
+            }
+        }
+
+        private fun startOAuthLogin() {
             runOnUiThread {
                 lifecycleScope.launch {
                     try {
+                        // ✅ 2. 기존 사용자가 존재하는지 확인 (이메일 중복 방지)
+                        val userList = account.listIdentities() // Appwrite에 로그인된 계정 리스트 확인
+                        if (userList.identities.isNotEmpty()) {
+                            val user = account.get()
+                            runOnUiThread {
+                                webView.evaluateJavascript("onLoginSuccess('${user.email}')", null)
+                            }
+                            return@launch
+                        }
+
+                        // ✅ 3. 기존 세션이 없을 경우 OAuth2 로그인 수행
                         account.createOAuth2Session(
-                            activity = this@MainActivity, // ✅ 현재 액티비티 전달
-                            provider = OAuthProvider.GOOGLE // ✅ 문자열 대신 Enum 값 사용
+                            activity = this@MainActivity,
+                            provider = OAuthProvider.GOOGLE
                         )
+
                         val user = account.get()
                         runOnUiThread {
                             webView.evaluateJavascript("onLoginSuccess('${user.email}')", null)
                         }
                     } catch (e: Exception) {
-                        Log.e("LoginError", e.message ?: "Unknown error")
+                        Log.e("OAuthLoginError", e.message ?: "Unknown error")
                         runOnUiThread {
                             webView.evaluateJavascript("onLoginFailure()", null)
                         }
