@@ -2,16 +2,21 @@ package me.moontree.treekiosk.v3
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInClient
 import io.appwrite.Client
 import io.appwrite.enums.OAuthProvider
+import io.appwrite.models.Session
 import io.appwrite.services.Account
 import kotlinx.coroutines.launch
 
@@ -20,39 +25,44 @@ class MainActivity : AppCompatActivity() {
     private lateinit var googleSignInClient: SignInClient
     private lateinit var account: Account
     private lateinit var client: Client
-    private lateinit var context: Context // Add context variable
+    private lateinit var context: Context
+
+    private val signInLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result: ActivityResult ->
+        if (result.resultCode == RESULT_OK) {
+            result.data?.let { handleSignInResult(it) }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        context = this // Initialize context
+        context = this
 
-        // Appwrite 초기화
         client = Client(context)
             .setEndpoint("https://cloud.appwrite.io/v1")
             .setProject("treekiosk")
 
         account = Account(client)
 
-        // Google Sign-In 초기화
         googleSignInClient = Identity.getSignInClient(this)
+
+        // Check for existing session on app start
+        checkAuthState()
+
+        // Example Google Sign-In button click listener (replace with your actual button)
+        // findViewById<Button>(R.id.googleSignInButton).setOnClickListener {
+        //     signInWithGoogle()
+        // }
     }
 
-    // Google 로그인 요청
-    private val signInLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == RESULT_OK) {
-            result.data?.let { handleSignInResult(it) }
-        }
-    }
 
-    // Google 로그인 버튼 클릭 시 실행
     fun signInWithGoogle() {
         val signInRequest = BeginSignInRequest.builder()
             .setGoogleIdTokenRequestOptions(
                 BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
                     .setSupported(true)
-                    .setServerClientId("719927565453-c30tcpgoq831028e3mb41trlrl91bgb3.apps.googleusercontent.com") // Google OAuth Client ID 설정
+                    .setServerClientId("YOUR_GOOGLE_CLIENT_ID") // Replace with your Client ID
                     .setFilterByAuthorizedAccounts(false)
                     .build()
             )
@@ -67,58 +77,72 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
-    // Google 로그인 결과 처리
     private fun handleSignInResult(data: Intent) {
         val credential = googleSignInClient.getSignInCredentialFromIntent(data)
         val googleIdToken = credential.googleIdToken
 
         if (googleIdToken != null) {
-            // Appwrite에 OAuth 로그인 요청
             authenticateWithAppwrite(googleIdToken)
         } else {
             Log.e("GoogleSignIn", "Google ID Token is null")
         }
     }
 
-    // 3. Appwrite 세션 생성 - 변경된 부분
     private fun authenticateWithAppwrite(googleIdToken: String) {
         lifecycleScope.launch {
             try {
-                // Appwrite에 Google OAuth를 직접 사용하는 방식으로 변경
-                 val session = account.createOAuth2Session(
-                    provider = OAuthProvider.GOOGLE, // Google Provider 지정
-                    success = "app://success", // Redirect URL (custom scheme)
-                    failure = "app://failure"  // Redirect URL (custom scheme)
+                val session: Session = account.createOAuth2Session(
+                    provider = OAuthProvider.GOOGLE,
+                    success = "app://success", // Custom scheme redirect URL
+                    failure = "app://failure"  // Custom scheme redirect URL
                 )
-                Log.d("AppwriteAuth", "로그인 성공: ${session.userId}")
+                Log.d("AppwriteAuth", "Appwrite Login Success: ${session.userId}")
+                checkAuthState() // Update UI or perform actions after successful login
 
             } catch (e: Exception) {
-                Log.e("AppwriteAuth", "로그인 실패: ${e.message}")
+                Log.e("AppwriteAuth", "Appwrite Login Failed: ${e.message}")
             }
         }
     }
 
-    // 4. 인증 상태 확인
     fun checkAuthState() {
         lifecycleScope.launch {
-            try {
-                val user = account.get()
-                Log.d("AuthState", "현재 로그인된 사용자: ${user.email}")
-            } catch (e: Exception) {
-                Log.e("AuthState", "로그인된 사용자 없음")
+            repeatOnLifecycle(Lifecycle.State.RESUMED) { // Use repeatOnLifecycle
+                try {
+                    val user = account.get()
+                    Log.d("AuthState", "Current User: ${user.email}")
+                    // Update UI to show logged-in state
+                } catch (e: Exception) {
+                    Log.d("AuthState", "No logged-in user")
+                    // Update UI to show logged-out state
+                }
             }
         }
     }
 
-    // 5. 로그아웃 기능
+
     fun logout() {
         lifecycleScope.launch {
             try {
                 account.deleteSession("current")
-                Log.d("Logout", "로그아웃 성공")
+                Log.d("Logout", "Logout Success")
+                checkAuthState() // Update UI after logout
             } catch (e: Exception) {
-                Log.e("Logout", "로그아웃 실패: ${e.message}")
+                Log.e("Logout", "Logout Failed: ${e.message}")
             }
         }
     }
+
+    // Handle incoming intents (for custom scheme redirects)
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        val uri: Uri? = intent?.data
+        if (uri != null) {
+            Log.d("IntentData", "onNewIntent: $uri")
+            // Extract any parameters from the URI if needed (e.g., session ID)
+            // Example: val sessionId = uri.getQueryParameter("session_id")
+        }
+    }
+
+
 }
