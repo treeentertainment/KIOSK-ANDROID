@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "me.moontree.treekiosk.v3"
-        minSdk = 24
+        minSdk = 20
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -25,19 +25,18 @@ android {
         }
     }
 
-    // Add these blocks here:
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17 // Or 1.8 if absolutely necessary
-        targetCompatibility JavaVersion.VERSION_17 // Or 1.8 if absolutely necessary
-        toolchain { // Recommended for Java 17+
-            languageVersion = JavaLanguageVersion.of(17) // Or 1.8
+        sourceCompatibility = org.jetbrains.kotlin.utils.JavaVersion.VERSION_17 // Correct syntax
+        targetCompatibility = org.jetbrains.kotlin.utils.JavaVersion.VERSION_17 // Correct syntax
+        toolchain {
+            languageVersion.set(org.jetbrains.kotlin.utils.JavaVersion.of(17)) // Correct syntax
         }
     }
-    kotlinOptions {
-        jvmTarget = '17' // Or 1.8
-    }
 
-} // End of the android block
+    kotlinOptions {
+        jvmTarget = "17" // Correct syntax (String)
+    }
+}
 
 dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
