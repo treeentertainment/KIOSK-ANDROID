@@ -1,5 +1,6 @@
 package me.moontree.treekiosk.v3
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -10,7 +11,7 @@ import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInClient
 import io.appwrite.Client
-import io.appwrite.ID
+import io.appwrite.enums.OAuthProvider
 import io.appwrite.services.Account
 import kotlinx.coroutines.launch
 
@@ -18,12 +19,15 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var googleSignInClient: SignInClient
     private lateinit var account: Account
+    private lateinit var client: Client
+    private lateinit var context: Context // Add context variable
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        context = this // Initialize context
 
         // Appwrite 초기화
-        val client = Client(this)
+        client = Client(context)
             .setEndpoint("https://cloud.appwrite.io/v1")
             .setProject("treekiosk")
 
@@ -76,16 +80,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // 3. Appwrite 세션 생성
+    // 3. Appwrite 세션 생성 - 변경된 부분
     private fun authenticateWithAppwrite(googleIdToken: String) {
         lifecycleScope.launch {
             try {
-                val session = account.createOAuth2Session(
-                    provider = "google",
-                    success = "app://success",
-                    failure = "app://failure"
+                // Appwrite에 Google OAuth를 직접 사용하는 방식으로 변경
+                 val session = account.createOAuth2Session(
+                    provider = OAuthProvider.GOOGLE, // Google Provider 지정
+                    success = "app://success", // Redirect URL (custom scheme)
+                    failure = "app://failure"  // Redirect URL (custom scheme)
                 )
                 Log.d("AppwriteAuth", "로그인 성공: ${session.userId}")
+
             } catch (e: Exception) {
                 Log.e("AppwriteAuth", "로그인 실패: ${e.message}")
             }
