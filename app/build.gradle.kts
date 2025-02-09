@@ -32,8 +32,8 @@ dependencies {
     implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 
-    // 최신 Appwrite SDK 사용
-    implementation("io.appwrite:sdk-for-android:4.0.1") // 최신 버전 확인 필요
+
+    implementation("io.appwrite:sdk-for-android:7.0.0")
     
     // 추가된 의존성 최신화
     implementation("androidx.fragment:fragment-ktx:1.6.2")  
@@ -43,9 +43,9 @@ dependencies {
     implementation("androidx.viewpager2:viewpager2:1.1.0")
     implementation("androidx.coordinatorlayout:coordinatorlayout:1.2.0")
 
-    // OkHttp BOM 제거하고 개별 버전 명시
+    // OkHttp BOM 제거하고 개별 라이브러리 명시
     implementation("com.squareup.okhttp3:okhttp:4.10.0")  
-    implementation("com.squareup.okhttp3:logging-interceptor:4.10.0") // 필요 시 추가
+    implementation("com.squareup.okhttp3:logging-interceptor:4.10.0") 
 
     // 불필요한 legacy 지원 제거 고려
     // implementation("androidx.legacy:legacy-support-core-utils:1.0.0") 
