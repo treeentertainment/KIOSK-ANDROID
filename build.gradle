@@ -1,12 +1,10 @@
 buildscript {
-    repositories {
-        mavenCentral() // ✅ `google()`과 기타 저장소 제거
-    }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.2.0'
+        classpath 'com.android.tools.build:gradle:8.2.2' // ✅ 최신 버전으로 변경
         classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0'
     }
 }
+
 
 allprojects {
     repositories {
