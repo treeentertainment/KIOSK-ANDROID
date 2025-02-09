@@ -1,13 +1,13 @@
 pluginManagement {
     repositories {
-        google()  // ✅ Android Gradle Plugin 저장소
-        mavenCentral()  // ✅ Kotlin 플러그인 저장소
-        gradlePluginPortal()  // ✅ 기타 Gradle 플러그인 저장소
+        google()
+        mavenCentral()
+        gradlePluginPortal()
     }
 }
 
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS) // ✅ `build.gradle`에서 추가 방지
+    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT) // ✅ 프로젝트 `repositories {}` 허용
     repositories {
         google()
         mavenCentral()
