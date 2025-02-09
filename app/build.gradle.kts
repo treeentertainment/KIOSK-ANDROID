@@ -43,10 +43,9 @@ dependencies {
     implementation("androidx.viewpager2:viewpager2:1.1.0")
     implementation("androidx.coordinatorlayout:coordinatorlayout:1.2.0")
 
-    // OkHttp BOM을 사용하여 버전 관리
-    implementation(platform("com.squareup.okhttp3:okhttp-bom:4.10.0"))
-    implementation("com.squareup.okhttp3:okhttp")  // OkHttp 본체
-    implementation("com.squareup.okhttp3:logging-interceptor") // 네트워크 로그 확인 시 필요
+    // OkHttp BOM 제거하고 개별 버전 명시
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")  
+    implementation("com.squareup.okhttp3:logging-interceptor:4.10.0") // 필요 시 추가
 
     // 불필요한 legacy 지원 제거 고려
     // implementation("androidx.legacy:legacy-support-core-utils:1.0.0") 
