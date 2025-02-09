@@ -7,8 +7,8 @@ import android.webkit.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import io.appwrite.Client
-import io.appwrite.ID
 import io.appwrite.services.Account
+import io.appwrite.enums.OAuthProvider
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -41,19 +41,22 @@ class MainActivity : AppCompatActivity() {
     inner class WebAppInterface {
         @JavascriptInterface
         fun googleLogin() {
-            lifecycleScope.launch {
-                try {
-                    val session = account.createOAuth2Session(
-                        provider = "google"
-                    )
-                    val user = account.get()
-                    runOnUiThread {
-                        webView.evaluateJavascript("onLoginSuccess('${user.email}')", null)
-                    }
-                } catch (e: Exception) {
-                    Log.e("LoginError", e.message ?: "Unknown error")
-                    runOnUiThread {
-                        webView.evaluateJavascript("onLoginFailure()", null)
+            runOnUiThread {
+                lifecycleScope.launch {
+                    try {
+                        account.createOAuth2Session(
+                            activity = this@MainActivity, // ✅ 현재 액티비티 전달
+                            provider = OAuthProvider.GOOGLE // ✅ 문자열 대신 Enum 값 사용
+                        )
+                        val user = account.get()
+                        runOnUiThread {
+                            webView.evaluateJavascript("onLoginSuccess('${user.email}')", null)
+                        }
+                    } catch (e: Exception) {
+                        Log.e("LoginError", e.message ?: "Unknown error")
+                        runOnUiThread {
+                            webView.evaluateJavascript("onLoginFailure()", null)
+                        }
                     }
                 }
             }
