@@ -65,7 +65,7 @@ webView.webChromeClient = object : WebChromeClient() {
             settings.allowFileAccessFromFileURLs = true
             settings.allowUniversalAccessFromFileURLs = true
             webViewClient = WebViewClient()
-            webChromeClient = this@object
+            webChromeClient = WebChromeClient()
         }
 
         val dialog = Dialog(this@MainActivity).apply {
