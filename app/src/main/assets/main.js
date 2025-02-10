@@ -203,15 +203,6 @@ function saveOrder() {
 function getItemIndex(description) {
     return order.findIndex(item => item.description.trim() === description.trim());
 }
- 
-window.addEventListener("message", function (event) {
-  if (event.origin !== window.location.origin) {
-    return;
-  }
-  if (event.data === "home") {
-    window.location.href = `index.html`;
-  }
-});
 
 function onLoginFailure(message) {
  window.location.href = "index.html";
@@ -230,4 +221,12 @@ function onLoginFailure(message) {
 window.addEventListener('load', function() {
     
     window.AndroidApp.checkUserDocument(localStorage.getItem('email'));
+});
+
+window.addEventListener("message", function(event) {
+    console.log("Received message:", event.data);
+
+    if (event.data === "home") {
+     window.location.href = `index.html`;   
+    }
 });
