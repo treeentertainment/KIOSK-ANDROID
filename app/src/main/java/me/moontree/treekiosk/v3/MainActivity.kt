@@ -36,13 +36,12 @@ class MainActivity : AppCompatActivity() {
             allowContentAccess = true
             databaseEnabled = true
             allowFileAccessFromFileURLs = true
-            setSupportMultipleWindows = true
+            setSupportMultipleWindows(true)
         }
 
         webView.webViewClient = WebViewClient()
         webView.webChromeClient = WebChromeClient()
         webView.addJavascriptInterface(WebAppInterface(), "AndroidApp")
-        webView.setWebContentsDebuggingEnabled(true)
 
         webView.loadUrl("file:///android_asset/index.html")
 
