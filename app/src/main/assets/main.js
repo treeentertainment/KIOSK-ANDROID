@@ -20,7 +20,7 @@ function init() {
 
 function openWindow(name) {
 
-    var url = `file://android_asset/${name}`;
+    var url = `file:///android_asset/${name}`;
 
    window.AndroidApp.openNewTab(url);
 }
