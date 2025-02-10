@@ -314,4 +314,8 @@ override fun onPause() {
     super.onPause()
     unregisterReceiver(messageReceiver)
 }
+override fun onDestroy() {
+    super.onDestroy()
+    unregisterReceiver(messageReceiver)
+}
 }
