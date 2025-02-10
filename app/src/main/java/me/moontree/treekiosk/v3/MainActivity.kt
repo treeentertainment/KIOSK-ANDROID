@@ -49,28 +49,40 @@ class MainActivity : AppCompatActivity() {
             javaScriptCanOpenWindowsAutomatically = true
         }
 
-        webView.webViewClient = WebViewClient()
-        webView.webChromeClient = object : WebChromeClient() {
-            override fun onCreateWindow(
-                view: WebView?,
-                isDialog: Boolean,
-                isUserGesture: Boolean,
-                resultMsg: Message?
-            ): Boolean {
-                val transport = resultMsg?.obj as? WebView.WebViewTransport
-                transport?.webView = WebView(this@MainActivity).apply {
-                    setupWebView(this)
-                }
-                resultMsg?.sendToTarget()
-
-                val newUrl = view?.url ?: "about:blank"
-                val intent = Intent(this@MainActivity, NewWebActivity::class.java)
-                intent.putExtra("url", newUrl)
-                startActivity(intent)
-
-                return true
-            }
+webView.webViewClient = WebViewClient()
+webView.webChromeClient = object : WebChromeClient() {
+    override fun onCreateWindow(
+        view: WebView?,
+        isDialog: Boolean,
+        isUserGesture: Boolean,
+        resultMsg: Message?
+    ): Boolean {
+        val transport = resultMsg?.obj as? WebView.WebViewTransport
+        transport?.webView = WebView(this@MainActivity).apply {
+            setupWebView(this)
         }
+        resultMsg?.sendToTarget()
+
+        val newUrl = view?.url ?: "about:blank"
+        val intent = Intent(this@MainActivity, NewWebActivity::class.java)
+        intent.putExtra("url", newUrl)
+        startActivity(intent)
+
+        return true
+    }
+
+    // JavaScript alert() 커스텀 처리
+    override fun onJsAlert(view: WebView?, url: String?, message: String?, result: JsResult?): Boolean {
+        AlertDialog.Builder(view?.context ?: return false)
+            .setTitle("알림") // 원하는 제목으로 변경
+            .setMessage(message)
+            .setPositiveButton(android.R.string.ok) { _, _ -> result?.confirm() }
+            .setCancelable(false)
+            .show()
+        return true // 기본 Alert을 대체
+    }
+}
+
 
         webView.addJavascriptInterface(WebAppInterface(), "AndroidApp")
     }
