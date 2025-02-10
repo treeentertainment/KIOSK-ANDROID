@@ -12,6 +12,8 @@ jobs:
   build:
     name: Build Android App
     runs-on: ubuntu-latest
+    # except.txt 변경 시 빌드를 건너뛰도록 설정
+    if: ${{ !contains(github.event.head_commit.message, 'Update except.txt') }}
 
     steps:
       - name: Checkout Repository
@@ -41,13 +43,19 @@ jobs:
           name: app-apk
           path: app/build/outputs/apk/debug/app-debug.apk
 
-      - name: Add Current Run ID to except.txt
-        run: |
-          echo "${{ github.run_id }}" >> except.txt
-          echo "Added current run ID: ${{ github.run_id }} to except.txt"
+  update_except_txt:
+    name: Update except.txt with current run ID
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-      - name: Upload except.txt
-        uses: actions/upload-artifact@v4
-        with:
-          name: except-txt
-          path: except.txt
+      - name: Modify except.txt with current run ID
+        run: |
+          # except.txt 파일에 현재 실행 ID 추가
+          echo "${{ github.run_id }}" >> except.txt
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add except.txt
+          git commit -m "Update except.txt with current run ID: ${{ github.run_id }}"
+          git push
