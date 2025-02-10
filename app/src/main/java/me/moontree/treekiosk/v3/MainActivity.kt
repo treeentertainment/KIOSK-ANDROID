@@ -27,8 +27,14 @@ class MainActivity : AppCompatActivity() {
 
         // WebView 설정
         webView = findViewById(R.id.webView)
-        webView.settings.javaScriptEnabled = true
-        webView.settings.domStorageEnabled = true
+         webView.settings.apply {
+        javaScriptEnabled = true
+        domStorageEnabled = true // ✅ localStorage 활성화
+        allowFileAccess = true
+        allowContentAccess = true
+        databaseEnabled = true // ✅ 웹 저장소(database) 활성화
+         }
+         
         webView.webViewClient = WebViewClient()
         webView.webChromeClient = WebChromeClient()
         webView.addJavascriptInterface(WebAppInterface(), "AndroidApp")
