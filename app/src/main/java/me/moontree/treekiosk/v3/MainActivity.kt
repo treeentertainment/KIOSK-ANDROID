@@ -1,9 +1,7 @@
 package me.moontree.treekiosk.v3
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.os.Bundle
-import android.os.Message
 import android.util.Log
 import android.webkit.*
 import androidx.appcompat.app.AppCompatActivity
@@ -14,6 +12,8 @@ import io.appwrite.services.Account
 import io.appwrite.services.Databases
 import io.appwrite.Query
 import kotlinx.coroutines.launch
+import java.io.BufferedReader
+import java.io.InputStreamReader
 
 class MainActivity : AppCompatActivity() {
 
