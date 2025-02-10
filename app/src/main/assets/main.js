@@ -17,6 +17,14 @@ function init() {
     }
 }
 
+
+function openWindow(name) {
+
+    var url = `${name}`;
+
+    var win = window.open(url, '_blank');
+    win.focus();
+}
 // 데이터 로드
 function loadItem() {
           let jsonString = window.AndroidApp.getJson(); // Android에서 JSON 가져오기
@@ -81,8 +89,9 @@ function preloadImage(img) {
 
 // 편집 기능
 function edit(event) {
-                let jsonString = window.AndroidApp.getJson(); // Android에서 JSON 가져오기
-                let data = JSON.parse(jsonString);    const id = event.target.dataset.id;
+    let jsonString = window.AndroidApp.getJson(); // Android에서 JSON 가져오기
+     let data = JSON.parse(jsonString);    
+    const id = event.target.dataset.id;
             const item = data[id];
 
             // 기존 이벤트 리스너 제거 후 추가 (중복 방지)
@@ -195,18 +204,7 @@ function saveOrder() {
 function getItemIndex(description) {
     return order.findIndex(item => item.description.trim() === description.trim());
 }
-
-
-
-// 초기 로그인 확인
-function openWindow(name) {
-
-    var url = `${name}`;
-
-    var win = window.open(url, '_blank');
-    win.focus();
-}
-  
+ 
 window.addEventListener("message", function (event) {
   if (event.origin !== window.location.origin) {
     return;
