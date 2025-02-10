@@ -51,6 +51,10 @@ class MainActivity : AppCompatActivity() {
             javaScriptCanOpenWindowsAutomatically = true
         }
 
+      webView.settings.setSupportZoom(false) // 화면 줌 허용여부
+      webView.settings.builtInZoomControls = false // 화면 확대 축소 허용여부
+      webView.settings.displayZoomControls = false // 줌 컨트롤 없애기.
+
 webView.webViewClient = WebViewClient()
 webView.webChromeClient = object : WebChromeClient() {
     override fun onCreateWindow(
