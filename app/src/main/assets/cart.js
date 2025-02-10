@@ -1,12 +1,11 @@
 const cart = document.getElementById("cart-list");
 let order = JSON.parse(localStorage.getItem('order')) || []; // Load from localStorage or initialize
 
-
-window.addEventListener('load', cartshow);
-
 const cartshow = debounce(function () {
     renderCart();
 }, 300);
+
+window.addEventListener('load', cartshow);
 
 function renderCart() {
     cart.innerHTML = order.length === 0 ? `
