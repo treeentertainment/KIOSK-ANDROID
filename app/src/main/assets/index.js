@@ -22,40 +22,8 @@
 
         // Google 로그인 버튼 클릭 시 AndroidInterface 호출
         document.getElementById('googleLoginBtn').addEventListener('click', function() {
-            if (window.AndroidInterface) {
-                AndroidInterface.loginWithOAuth();
-            } else {
-                console.error('AndroidInterface가 정의되지 않음');
-            }
+            login();
         });
-
-        // 로그아웃 처리
-        async function logout() {
-            try {
-                if (window.AndroidInterface) {
-                    AndroidInterface.logout();
-                }
-                
-                localStorage.clear();
-                sessionStorage.clear();
-                toggleVisibility(['login-container'], ['front']);    
-
-                // Google 세션 로그아웃
-                const googleLogoutUrl = 'https://accounts.google.com/Logout';
-                const win = window.open(googleLogoutUrl, '_blank');
-                if (win) {
-                    win.close();
-                } else {
-                    console.error('Unable to open Google logout window.');
-                }
-
-                // 상태 초기화
-                clickCount = 0;
-                window.location.reload();
-            } catch (error) {
-                console.error('로그아웃 중 오류 발생:', error);
-            }
-        }
 
         document.getElementById('logout-link').addEventListener('click', async (e) => {
             e.preventDefault();
@@ -63,7 +31,7 @@
 
             if (clickCount === 5) { // 5번 클릭 시 로그아웃 실행
                 try {
-                    await logout();
+               logout();
                 } catch (error) {
                     console.error('로그아웃 중 오류 발생:', error);
                 }
@@ -73,6 +41,26 @@
         // 페이지 로드 시 Android에서 로그인 상태 확인 요청
         document.addEventListener('DOMContentLoaded', () => {
             if (window.AndroidInterface) {
-                AndroidInterface.checkAuthState();
+                window.AndroidApp.checkAuthState();
             }
         })
+
+        function login() {
+            window.AndroidApp.googleLogin();
+        }
+
+        function onLoginSuccess(email) {
+            window.AndroidApp.checkUserDocument(email);
+        }
+
+        function onLoginFailure(message) {
+            document.getElementById('status').innerHTML = `<p style="color:red;">로그인 실패: ${message}</p>`;
+        }
+
+        function logout() {
+            window.AndroidApp.logout();
+        }
+
+        function onLogoutSuccess() {
+            toggleVisibility(['login-container'], ['front']);    
+        }
