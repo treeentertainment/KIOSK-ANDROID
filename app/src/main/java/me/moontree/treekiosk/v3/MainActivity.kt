@@ -37,6 +37,7 @@ class MainActivity : AppCompatActivity() {
             databaseEnabled = true
             allowFileAccessFromFileURLs = true
             setSupportMultipleWindows(true)
+            javaScriptCanOpenWindowsAutomatically= true
         }
 
         webView.webViewClient = WebViewClient()
