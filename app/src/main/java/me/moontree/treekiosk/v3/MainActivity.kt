@@ -124,25 +124,32 @@ class MainActivity : AppCompatActivity() {
         @JavascriptInterface
         fun checkUserDocument(email: String) {
             lifecycleScope.launch {
-                val exists = isDocumentExists(email)
+                val (exists, name) = getUserDocument(email)
                 runOnUiThread {
-                    webView.evaluateJavascript("onUserExists($exists);", null)
+                    webView.evaluateJavascript("onUserExists($exists, '$email', '$name');", null)
                 }
             }
         }
     }
 
-    private suspend fun isDocumentExists(email: String): Boolean {
+    private suspend fun getUserDocument(email: String): Pair<Boolean, String?> {
         return try {
             val response = database.listDocuments(
                 databaseId = "tree-kiosk",
                 collectionId = "owner",
                 queries = listOf(Query.equal("email", email))
             )
-            response.documents.isNotEmpty()
+
+            if (response.documents.isNotEmpty()) {
+                val document = response.documents.first()
+                val name = document.data["name"] as? String ?: "Unknown"
+                Pair(true, name)
+            } else {
+                Pair(false, null)
+            }
         } catch (e: Exception) {
             Log.e("Appwrite", "사용자 데이터를 가져오는 중 오류 발생: ${e.message}")
-            false
+            Pair(false, null)
         }
     }
 }
