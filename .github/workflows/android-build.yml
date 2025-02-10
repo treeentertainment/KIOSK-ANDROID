@@ -24,7 +24,7 @@ jobs:
           java-version: '17'
 
       - name: Install Gradle
-        uses: gradle/gradle-build-action@v3
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Generate Gradle Wrapper (if missing)
         run: gradle wrapper || ./gradlew wrapper
