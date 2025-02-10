@@ -41,6 +41,7 @@ class MainActivity : AppCompatActivity() {
         webView.webViewClient = WebViewClient()
         webView.webChromeClient = WebChromeClient()
         webView.addJavascriptInterface(WebAppInterface(), "AndroidApp")
+        WebView.setWebContentsDebuggingEnabled(true)
 
         webView.loadUrl("file:///android_asset/index.html")
 
