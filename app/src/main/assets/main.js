@@ -214,7 +214,7 @@ function openWindow(name) {
   if (event.data === "home") {
     window.location.href = `index.html`;
   }
-  }
+  });
 
 function onLoginFailure(message) {
           window.location.href = "index.html";
