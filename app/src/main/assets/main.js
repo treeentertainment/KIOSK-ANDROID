@@ -20,10 +20,9 @@ function init() {
 
 function openWindow(name) {
 
-    var url = `${name}`;
+    var url = `file://android_asset/${name}`;
 
-    var win = window.open(url, '_blank');
-    win.focus();
+   window.AndroidApp.openNewTab(url);
 }
 // 데이터 로드
 function loadItem() {
