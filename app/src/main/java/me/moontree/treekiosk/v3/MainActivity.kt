@@ -7,11 +7,11 @@ import android.webkit.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import io.appwrite.Client
-import io.appwrite.services.Account
 import io.appwrite.enums.OAuthProvider
-import kotlinx.coroutines.launch
-import io.appwrite.Query
+import io.appwrite.services.Account
 import io.appwrite.services.Databases
+import io.appwrite.Query
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -47,33 +47,31 @@ class MainActivity : AppCompatActivity() {
     inner class WebAppInterface {
 
         @JavascriptInterface
-        fun checkUserDocument(email: String) {
-            lifecycleScope.launch {
-                val exists = isDocumentExists(email)
-                runOnUiThread {
-                    webView.evaluateJavascript("onUserExists($exists);", null)
-                }
-            }
-        }
-
-        @JavascriptInterface
         fun googleLogin() {
-            try {
-                Log.d("Appwrite", "Starting Google OAuth login...")
+            lifecycleScope.launch {
+                try {
+                    Log.d("Appwrite", "Starting Google OAuth login...")
 
-                account.createOAuth2Session(
-                    this@MainActivity,
-                    OAuthProvider.GOOGLE
-                )
+                    account.createOAuth2Session(
+                        activity = this@MainActivity,
+                        provider = OAuthProvider.GOOGLE
+                    )
 
-                Log.d("Appwrite", "Google OAuth login process started.")
+                    // ✅ 로그인 성공 후, 사용자 정보 가져오기
+                    val user = account.get()
+                    Log.d("Appwrite", "User logged in: ${user.email}")
 
-            } catch (e: Exception) {
-                val errorMessage = e.message ?: "Unknown error"
-                Log.e("Appwrite", "OAuth login failed: $errorMessage")
+                    runOnUiThread {
+                        webView.evaluateJavascript("onLoginSuccess('${user.email}')", null)
+                    }
 
-                runOnUiThread {
-                    webView.evaluateJavascript("onLoginFailure('$errorMessage')", null)
+                } catch (e: Exception) {
+                    val errorMessage = e.message ?: "Unknown error"
+                    Log.e("Appwrite", "OAuth login failed: $errorMessage")
+
+                    runOnUiThread {
+                        webView.evaluateJavascript("onLoginFailure('$errorMessage')", null)
+                    }
                 }
             }
         }
@@ -122,9 +120,19 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+
+        @JavascriptInterface
+        fun checkUserDocument(email: String) {
+            lifecycleScope.launch {
+                val exists = isDocumentExists(email)
+                runOnUiThread {
+                    webView.evaluateJavascript("onUserExists($exists);", null)
+                }
+            }
+        }
     }
 
-    suspend fun isDocumentExists(email: String): Boolean {
+    private suspend fun isDocumentExists(email: String): Boolean {
         return try {
             val response = database.listDocuments(
                 databaseId = "tree-kiosk",
