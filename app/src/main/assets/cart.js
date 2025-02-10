@@ -79,12 +79,6 @@ function debounce(func, wait) {
         timeout = setTimeout(later, wait);
     };
 }
-
-function openwindow(name) {
-    var url = `${name}`;
-    var win = window.open(url, '_blank');
-    win.focus();
-  }
   
   function onLoginFailure(message) {
           window.location.href = "index.html";
