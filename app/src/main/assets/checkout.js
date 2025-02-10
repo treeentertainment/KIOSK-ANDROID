@@ -1,8 +1,6 @@
             const li = document.getElementById("check");
             let order = JSON.parse(localStorage.getItem('order')) || [];
-            var shop = localStorage.getItem('name')?.replace(/"/g, '');
-            const email = localStorage.getItem('email');
-
+            
             function renderCheckout() {
                 li.innerHTML = '';
                 if (order.length === 0) {
@@ -56,70 +54,14 @@
             }
 
             async function submit() {
-                const input = document.getElementById('numberDisplay').value; // 입력된 전화번호
-                const databaseId = "tree-kiosk"; // 데이터베이스 ID
-                const collectionIdOwner = "owner"; // 가게 정보 컬렉션 ID
-                const collectionIdOrders = "data"; // 주문 데이터 컬렉션 ID
-            
-                try {
-                    // 이메일로 해당 사용자의 문서 검색
-                    const ownerDocuments = await database.listDocuments(
-                        databaseId,
-                        collectionIdOwner,
-                        [Appwrite.Query.equal('email', email)] // 이메일 기준 필터링
-                    );
-            
-                    if (ownerDocuments.total === 0) {
-                        throw new Error("Owner document not found for the provided email.");
-                    }
-            
-                    // 첫 번째 문서를 기준으로 진행
-                    const ownerDocument = ownerDocuments.documents[0];
-                    const currentOrderNumber = ownerDocument.order || 0;
-            
-                    // 주문 데이터 생성
-                    const newOrder = {
-                        shop: shop,
-                        number: input,
-                        ordernumber: currentOrderNumber.toString(), // 현재 주문 번호 사용
-                        order: JSON.stringify(order), // 주문 데이터 JSON 문자열로 변환
-                    };
-            
-                    const validDocumentId = currentOrderNumber.toString();
-            
-                    // Appwrite에 주문 추가
-                    await database.createDocument(
-                        databaseId,
-                        collectionIdOrders,
-                        validDocumentId,
-                        newOrder
-                    );
-            
-                    // 주문 데이터 제출 후 번호 증가
-                    const newOrderNumber = parseInt(validDocumentId) + 1;
-            
-                    // 가게의 주문 번호 업데이트
-                    await database.updateDocument(
-                        databaseId,
-                        collectionIdOwner,
-                        ownerDocument.$id, // 이메일로 검색한 문서의 ID
-                        { order: newOrderNumber.toString() } // 번호 증가
-                    );
-            
-                    // 성공 후 처리
-                    clearDisplay();
-                    localStorage.removeItem("order");
-            
-                    alert("주문이 완료되었습니다.");
-                    window.opener.postMessage("home", window.location.origin);
-                    window.close();
-                } catch (error) {
-                    console.error("Error during submission:", error);
-                    alert("Error during submission: " + error.message);
-                }
+            const orderData = JSON.stringify(localStorage.getItem('order'));
+             var shop = localStorage.getItem('name')?.replace(/"/g, '');
+              const email = localStorage.getItem('email');
+              const phoneNumber = document.getElementById('numberDisplay').value; 
+              window.AndroidApp.submitOrder(phoneNumber, email, shop, orderData);
             }
-            
-            
+
+
             function formatPhoneNumber(value) {
                 value = value.replace(/[^0-9]/g, '');
                 if (value.length > 3) {
@@ -156,3 +98,17 @@ window.addEventListener('load', function() {
     
     window.AndroidApp.checkUserDocument(localStorage.getItem('email'));
 });
+
+
+function finishsend() {
+   clearDisplay();
+   localStorage.removeItem("order");
+   alert("주문이 완료되었습니다.");
+   window.opener.postMessage("home", window.location.origin);
+   window.close();
+}
+
+function errorsend(message) {
+    alert(message);
+    alert("다시 시도 하십시오");
+}
