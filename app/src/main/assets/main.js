@@ -80,10 +80,8 @@ function preloadImage(img) {
 
 // 편집 기능
 function edit(event) {
+    var data = window.AndroidApp.getJson();
     const id = event.target.dataset.id;
-    fetch("image/file.json")
-        .then(res => res.json())
-        .then(data => {
             const item = data[id];
 
             // 기존 이벤트 리스너 제거 후 추가 (중복 방지)
@@ -117,9 +115,7 @@ function edit(event) {
             form.addEventListener("reset", resetForm);
 
             myModal.show();
-        })
-        .catch(err => console.error(err));
-}
+        }
 
 // 페이지 전환
 function switchPage(pageId) {
