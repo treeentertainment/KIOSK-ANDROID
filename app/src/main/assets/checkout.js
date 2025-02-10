@@ -3,14 +3,6 @@
             var shop = localStorage.getItem('name')?.replace(/"/g, '');
             const email = localStorage.getItem('email');
 
-            // Appwrite SDK 초기화
-            const client = new Appwrite.Client()
-                .setEndpoint('https://cloud.appwrite.io/v1') // Replace with your Appwrite endpoint
-                .setProject('treekiosk'); // Replace with your Appwrite project ID
-
-            const database = new Appwrite.Databases(client);
-            const account = new Appwrite.Account(client);
-
             function renderCheckout() {
                 li.innerHTML = '';
                 if (order.length === 0) {
@@ -143,39 +135,24 @@
                 const pages = document.querySelectorAll('.page');
                 pages.forEach(page => {
                     page.style.display = page.id === "certificate" ? 'block' : 'none';
+                
                 });
-            }
+           }
 
+        function onLoginFailure(message) {
+          window.location.href = "index.html";
+        }
+
+
+        function onUserExists(exists, email, name) {
+            localStorage.setItem("name", name);
+            localStorage.setItem("email", email);
+            if (exists === false) {
+                window.location.href = "index.html";
+             }
+        }
+
+window.addEventListener('load', function() {
     
-            async function setLocal(email) {
-                try {
-                    const response = await database.listDocuments(
-                    'tree-kiosk',        // 데이터베이스 ID
-                    'owner',             // 컬렉션 ID
-                        [Appwrite.Query.equal('email', email)] // 이메일 주소 사용
-                    );
-            
-                    if (response.documents.length === 0) {
-                        location.href = "index.html";
-                        return;
-                    }
-            
-                    const doc = response.documents[0]; // 첫 번째 검색 결과
-                    if (doc.active) {
-                        localStorage.setItem("name", doc.name);
-                        localStorage.setItem("email", email);
-                    } else {
-                        location.href = "index.html";
-                    }
-                } catch (error) {
-                    location.href = "index.html";
-                }
-            }
-            
-            
-            document.addEventListener("DOMContentLoaded", function () {
-                const email = localStorage.getItem('email');
-                if (email) {
-                setLocal(email);
-                }
-            });
+    window.AndroidApp.checkUserDocument(localStorage.getItem('email'));
+});
