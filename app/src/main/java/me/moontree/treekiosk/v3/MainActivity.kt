@@ -33,13 +33,13 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        AppwriteManager.initialize(this)
         setContentView(R.layout.activity_main)
 
         webView = findViewById(R.id.webView)
         setupWebView(webView)
 
         webView.loadUrl("file:///android_asset/index.html")
-        AppwriteManager.initialize(this)
     }
 
     private fun setupWebView(webView: WebView) {
