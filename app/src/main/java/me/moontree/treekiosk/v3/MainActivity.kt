@@ -24,27 +24,65 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+    super.onCreate(savedInstanceState)
+    setContentView(R.layout.activity_main)
 
-        // WebView 설정
-        webView = findViewById(R.id.webView)
-        webView.settings.apply {
-            javaScriptEnabled = true
-            domStorageEnabled = true
-            allowFileAccess = true
-            allowContentAccess = true
-            databaseEnabled = true
-            allowFileAccessFromFileURLs = true
-            setSupportMultipleWindows(true)
-            javaScriptCanOpenWindowsAutomatically = true
+    // WebView 설정
+    webView = findViewById(R.id.webView)
+    webView.settings.apply {
+        javaScriptEnabled = true
+        domStorageEnabled = true
+        allowFileAccess = true
+        allowContentAccess = true
+        databaseEnabled = true
+        allowFileAccessFromFileURLs = true
+        allowUniversalAccessFromFileURLs = true  // ✅ file:// 간 접근 허용
+        setSupportMultipleWindows(true)  // ✅ 여러 창 지원
+        javaScriptCanOpenWindowsAutomatically = true  // ✅ window.open() 허용
+    }
+
+    webView.webViewClient = WebViewClient()
+
+    // ✅ WebChromeClient 추가 (window.open 지원)
+    webView.webChromeClient = object : WebChromeClient() {
+        override fun onCreateWindow(
+            view: WebView?,
+            isDialog: Boolean,
+            isUserGesture: Boolean,
+            resultMsg: Message?
+        ): Boolean {
+            val newWebView = WebView(this@MainActivity).apply {
+                settings.javaScriptEnabled = true
+                settings.domStorageEnabled = true
+                settings.setSupportMultipleWindows(true)
+                settings.javaScriptCanOpenWindowsAutomatically = true
+                settings.allowFileAccess = true
+                settings.allowContentAccess = true
+                settings.allowFileAccessFromFileURLs = true
+                settings.allowUniversalAccessFromFileURLs = true
+                webViewClient = WebViewClient()
+                webChromeClient = this@object
+            }
+
+            val dialog = android.app.Dialog(this@MainActivity).apply {
+                setContentView(newWebView)
+                window?.setLayout(
+                    WindowManager.LayoutParams.MATCH_PARENT,
+                    WindowManager.LayoutParams.MATCH_PARENT
+                )
+            }
+            dialog.show()
+
+            (resultMsg.obj as WebView.WebViewTransport).webView = newWebView
+            resultMsg.sendToTarget()
+
+            return true
         }
+    }
 
-        webView.webViewClient = WebViewClient()
-        webView.webChromeClient = WebChromeClient()
-        webView.addJavascriptInterface(WebAppInterface(), "AndroidApp")
+    webView.loadUrl("file:///android_asset/index.html")
 
-        webView.loadUrl("file:///android_asset/index.html")
+
 
         // Appwrite 클라이언트 초기화
         client = Client(this)
