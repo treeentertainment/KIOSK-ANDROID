@@ -30,6 +30,13 @@ class NewWebActivity : AppCompatActivity() {
         setupWebView(webView)
 
         webView.loadUrl(url)
+
+        client = Client(this)
+            .setEndpoint("https://cloud.appwrite.io/v1")
+            .setProject("treekiosk")
+
+        database = Databases(client)
+        account = Account(client)
     }
 
     private fun setupWebView(webView: WebView) {
