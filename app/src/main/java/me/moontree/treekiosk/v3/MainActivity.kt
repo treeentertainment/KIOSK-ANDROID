@@ -1,8 +1,11 @@
 package me.moontree.treekiosk.v3
 
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.os.Bundle
+import android.os.Message
 import android.util.Log
+import android.view.WindowManager
 import android.webkit.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -14,6 +17,7 @@ import io.appwrite.Query
 import kotlinx.coroutines.launch
 import java.io.BufferedReader
 import java.io.InputStreamReader
+
 
 class MainActivity : AppCompatActivity() {
 
