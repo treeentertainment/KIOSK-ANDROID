@@ -205,20 +205,21 @@ function openWindow(name) {
 
     var win = window.open(url, '_blank');
     win.focus();
-  }
+}
   
-  window.addEventListener("message", function (event) {
+window.addEventListener("message", function (event) {
   if (event.origin !== window.location.origin) {
     return;
   }
   if (event.data === "home") {
     window.location.href = `index.html`;
   }
-  });
+});
 
 function onLoginFailure(message) {
-          window.location.href = "index.html";
-        }
+ window.location.href = "index.html";
+
+}
 
 
         function onUserExists(exists, email, name) {
