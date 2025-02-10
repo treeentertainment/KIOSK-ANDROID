@@ -36,7 +36,6 @@ function updateItemQuantity(description, newQuantity) {
         const originalPrice = order[itemIndex].price / order[itemIndex].quantity;
         order[itemIndex].quantity = newQuantity;
         order[itemIndex].price = newQuantity * originalPrice;
-        console.log('Updated Order:', order); // Debugging: Log updated order
         saveOrder(); // Save order to localStorage
         renderCart(); // 카트 화면을 새로 고침
     }
@@ -61,7 +60,7 @@ function addItemToOrder({ id, image, description, price, quantity }) {
     } else {
         order.push({ id, image, description, quantity, price });
     }
-    console.log('Current Order:', order); // Debugging: Log current order
+   saveOrder(); 
 }
 
 function getItemIndex(description) {
@@ -81,11 +80,12 @@ function debounce(func, wait) {
 }
   
   function onLoginFailure(message) {
-          window.location.href = "index.html";
-        }
+    
+      window.location.href = "index.html";
 
+  }
 
-        function onUserExists(exists, email, name) {
+     function onUserExists(exists, email, name) {
             localStorage.setItem("name", name);
             localStorage.setItem("email", email);
             if (exists === false) {
@@ -93,7 +93,6 @@ function debounce(func, wait) {
              }
         }
 
-window.addEventListener('load', function() {
-    
+window.addEventListener('load', function() {   
     window.AndroidApp.checkUserDocument(localStorage.getItem('email'));
 });
