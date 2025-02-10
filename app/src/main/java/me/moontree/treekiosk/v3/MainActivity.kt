@@ -1,11 +1,10 @@
 package me.moontree.treekiosk.v3
 
 import android.annotation.SuppressLint
-import android.app.Dialog
 import android.os.Bundle
 import android.os.Message
 import android.util.Log
-import android.view.WindowManager
+import android.view.ViewGroup
 import android.webkit.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -18,61 +17,88 @@ import kotlinx.coroutines.launch
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
-
 class MainActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView
     private lateinit var client: Client
     private lateinit var account: Account
     private lateinit var database: Databases
+    private var newWebView: WebView? = null  // Stores the new WebView instance
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    setContentView(R.layout.activity_main)
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
 
-    // WebView 설정
-    webView = findViewById(R.id.webView)
-    webView.settings.apply {
-        javaScriptEnabled = true
-        domStorageEnabled = true
-        allowFileAccess = true
-        allowContentAccess = true
-        databaseEnabled = true
-        allowFileAccessFromFileURLs = true
-        allowUniversalAccessFromFileURLs = true  // ✅ file:// 간 접근 허용
-        setSupportMultipleWindows(true)  // ✅ 여러 창 지원
-        javaScriptCanOpenWindowsAutomatically = true  // ✅ window.open() 허용
-    }
+        webView = findViewById(R.id.webView)
+        setupWebView(webView)
 
-    // ✅ WebChromeClient 추가 (window.open 지원)
-    webView.webChromeClient = object : WebChromeClient() {
-    override fun onCreateWindow(
-        view: WebView?,
-        isDialog: Boolean,
-        isUserGesture: Boolean,
-        resultMsg: Message?
-    ): Boolean {
-        val transport = resultMsg?.obj as? WebView.WebViewTransport
-        transport?.webView = webView // 🚀 기존 WebView에서 열도록 설정
-        resultMsg?.sendToTarget()
-        return true
-    }
-}
+        webView.loadUrl("file:///android_asset/index.html")
 
-
-
-    webView.loadUrl("file:///android_asset/index.html")
-
-
-
-        // Appwrite 클라이언트 초기화
+        // Initialize Appwrite Client
         client = Client(this)
-            .setEndpoint("https://cloud.appwrite.io/v1") // ✅ Appwrite API 엔드포인트
-            .setProject("treekiosk") // ✅ 프로젝트 ID 입력
+            .setEndpoint("https://cloud.appwrite.io/v1")
+            .setProject("treekiosk")
 
         database = Databases(client)
         account = Account(client)
+    }
+
+    @SuppressLint("SetJavaScriptEnabled")
+    private fun setupWebView(webView: WebView) {
+        webView.settings.apply {
+            javaScriptEnabled = true
+            domStorageEnabled = true
+            allowFileAccess = true
+            allowContentAccess = true
+            databaseEnabled = true
+            allowFileAccessFromFileURLs = true
+            allowUniversalAccessFromFileURLs = true  // ✅ Enable file:// access
+            setSupportMultipleWindows(true)  // ✅ Enable multiple windows
+            javaScriptCanOpenWindowsAutomatically = true  // ✅ Allow window.open()
+        }
+
+        webView.webChromeClient = object : WebChromeClient() {
+            override fun onCreateWindow(
+                view: WebView?,
+                isDialog: Boolean,
+                isUserGesture: Boolean,
+                resultMsg: Message?
+            ): Boolean {
+                Log.d("WebView", "New window requested")
+
+                // Create a new WebView instance
+                newWebView = WebView(this@MainActivity).apply {
+                    settings.javaScriptEnabled = true
+                    settings.domStorageEnabled = true
+                    settings.setSupportMultipleWindows(true)
+                    settings.javaScriptCanOpenWindowsAutomatically = true
+                    layoutParams = ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                    )
+                    webChromeClient = this@MainActivity.webView.webChromeClient
+                    webViewClient = WebViewClient()
+                }
+
+                // Add the new WebView to the layout
+                addContentView(newWebView, newWebView!!.layoutParams)
+
+                val transport = resultMsg?.obj as WebView.WebViewTransport
+                transport.webView = newWebView
+                resultMsg.sendToTarget()
+
+                return true
+            }
+
+            override fun onCloseWindow(window: WebView?) {
+                Log.d("WebView", "Closing new window")
+                newWebView?.let {
+                    (it.parent as? ViewGroup)?.removeView(it)
+                    newWebView = null
+                }
+            }
+        }
     }
 
     inner class WebAppInterface {
@@ -88,14 +114,12 @@ class MainActivity : AppCompatActivity() {
                         provider = OAuthProvider.GOOGLE
                     )
 
-                    // ✅ 로그인 성공 후, 사용자 정보 가져오기
                     val user = account.get()
                     Log.d("Appwrite", "User logged in: ${user.email}")
 
                     runOnUiThread {
                         webView.evaluateJavascript("onLoginSuccess('${user.email}')", null)
                     }
-
                 } catch (e: Exception) {
                     val errorMessage = e.message ?: "Unknown error"
                     Log.e("Appwrite", "OAuth login failed: $errorMessage")
@@ -156,7 +180,6 @@ class MainActivity : AppCompatActivity() {
         fun submitOrder(phoneNumber: String, email: String, shop: String, orderJson: String) {
             lifecycleScope.launch {
                 try {
-                    // 가게 정보 가져오기
                     val ownerDocuments = database.listDocuments(
                         databaseId = "tree-kiosk",
                         collectionId = "owner",
@@ -164,13 +187,12 @@ class MainActivity : AppCompatActivity() {
                     )
 
                     if (ownerDocuments.documents.isEmpty()) {
-                        throw Exception("해당 이메일을 가진 가게 정보를 찾을 수 없습니다.")
+                        throw Exception("No shop found for this email.")
                     }
 
                     val ownerDocument = ownerDocuments.documents.first()
                     val currentOrderNumber = (ownerDocument.data["order"] as? String)?.toIntOrNull() ?: 0
 
-                    // 주문 데이터 생성
                     val newOrder = mapOf(
                         "shop" to shop,
                         "number" to phoneNumber,
@@ -180,7 +202,6 @@ class MainActivity : AppCompatActivity() {
 
                     val validDocumentId = currentOrderNumber.toString()
 
-                    // Appwrite에 주문 추가
                     database.createDocument(
                         databaseId = "tree-kiosk",
                         collectionId = "data",
@@ -188,7 +209,6 @@ class MainActivity : AppCompatActivity() {
                         data = newOrder
                     )
 
-                    // 주문 번호 증가 후 업데이트
                     val newOrderNumber = currentOrderNumber + 1
                     database.updateDocument(
                         databaseId = "tree-kiosk",
@@ -197,16 +217,15 @@ class MainActivity : AppCompatActivity() {
                         data = mapOf("order" to newOrderNumber.toString())
                     )
 
-                    // 성공 시 WebView에서 finish() 호출
                     runOnUiThread {
                         webView.evaluateJavascript("finishsend()", null)
                     }
 
                 } catch (e: Exception) {
-                    Log.e("Appwrite", "주문 제출 오류: ${e.message}")
+                    Log.e("Appwrite", "Order submission error: ${e.message}")
 
                     runOnUiThread {
-                        webView.evaluateJavascript("errorsend('주문 제출 실패: ${e.message}')", null)
+                        webView.evaluateJavascript("errorsend('Order submission failed: ${e.message}')", null)
                     }
                 }
             }
@@ -228,36 +247,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private suspend fun getUserDocument(email: String): Pair<Boolean, String?> {
-        return try {
-            val response = database.listDocuments(
-                databaseId = "tree-kiosk",
-                collectionId = "owner",
-                queries = listOf(Query.equal("email", email))
-            )
-
-            if (response.documents.isNotEmpty()) {
-                val document = response.documents.first()
-                val name = document.data["name"] as? String ?: "Unknown"
-                Pair(true, name)
-            } else {
-                Pair(false, null)
-            }
-        } catch (e: Exception) {
-            Log.e("Appwrite", "사용자 데이터를 가져오는 중 오류 발생: ${e.message}")
-            Pair(false, null)
-        }
-    }
-
     private fun readJsonFromAssets(): String {
         return try {
             val inputStream = assets.open("image/file.json")
             val reader = BufferedReader(InputStreamReader(inputStream))
-            val jsonString = reader.use { it.readText() }
-            jsonString
+            reader.use { it.readText() }
         } catch (e: Exception) {
-            e.printStackTrace()
-            "{}" // 에러 발생 시 빈 JSON 반환
+            "{}"
         }
     }
 }
