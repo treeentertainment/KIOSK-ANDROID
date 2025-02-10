@@ -1,8 +1,6 @@
 package me.moontree.treekiosk.v3
 
 import android.annotation.SuppressLint
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.webkit.*
@@ -47,56 +45,66 @@ class MainActivity : AppCompatActivity() {
         fun googleLogin() {
             lifecycleScope.launch {
                 try {
-                    val user = account.get() // ✅ 기존 세션 확인
+                    Log.d("Appwrite", "Checking existing session...")
+
+                    val user = account.get() // ✅ 기존 로그인 세션 확인
                     runOnUiThread {
                         webView.evaluateJavascript("onLoginSuccess('${user.email}')", null)
                     }
+                    Log.d("Appwrite", "User already logged in: ${user.email}")
+
                 } catch (e: Exception) {
-                    // 세션이 없으면 OAuth 로그인 시작
-                    runOnUiThread {
-                        webView.evaluateJavascript("onLoginFailure('No session found. Redirecting to OAuth login.')", null)
-                    }
+                    Log.d("Appwrite", "No existing session. Redirecting to OAuth login.")
                     startOAuthLogin()
                 }
             }
         }
 
         private fun startOAuthLogin() {
-    lifecycleScope.launch {
-        try {
-            account.createOAuth2Session(
-                activity = this@MainActivity,
-                provider = OAuthProvider.GOOGLE
-            )
+            lifecycleScope.launch {
+                try {
+                    Log.d("Appwrite", "Starting Google OAuth login...")
 
-            // ✅ 로그인 성공 후, 사용자 정보 가져오기
-            val user = account.get()
+                    account.createOAuth2Session(
+                        activity = this@MainActivity,
+                        provider = OAuthProvider.GOOGLE
+                    )
 
-            runOnUiThread {
-                webView.evaluateJavascript("onLoginSuccess('${user.email}')", null)
-            }
+                    // ✅ 로그인 성공 후, 사용자 정보 가져오기
+                    val user = account.get()
 
-        } catch (e: Exception) {
-            val errorMessage = e.message ?: "Unknown error"
+                    Log.d("Appwrite", "Google OAuth login successful: ${user.email}")
 
-            runOnUiThread {
-                // ✅ 로그인 실패 시 WebView에서 메시지 표시
-                webView.evaluateJavascript("onLoginFailure('$errorMessage')", null)
+                    runOnUiThread {
+                        webView.evaluateJavascript("onLoginSuccess('${user.email}')", null)
+                    }
+
+                } catch (e: Exception) {
+                    val errorMessage = e.message ?: "Unknown error"
+                    Log.e("Appwrite", "OAuth login failed: $errorMessage")
+
+                    runOnUiThread {
+                        webView.evaluateJavascript("onLoginFailure('$errorMessage')", null)
+                    }
+                }
             }
         }
-    }
-}
-
 
         @JavascriptInterface
         fun checkAuthState() {
             lifecycleScope.launch {
                 try {
+                    Log.d("Appwrite", "Checking auth state...")
+
                     val user = account.get()
+                    Log.d("Appwrite", "User is logged in: ${user.email}")
+
                     runOnUiThread {
                         webView.evaluateJavascript("onLoginSuccess('${user.email}')", null)
                     }
                 } catch (e: Exception) {
+                    Log.d("Appwrite", "User not logged in.")
+
                     runOnUiThread {
                         webView.evaluateJavascript("onLoginFailure('Not logged in')", null)
                     }
@@ -108,11 +116,18 @@ class MainActivity : AppCompatActivity() {
         fun logout() {
             lifecycleScope.launch {
                 try {
+                    Log.d("Appwrite", "Logging out...")
+
                     account.deleteSession("current")
+
+                    Log.d("Appwrite", "User logged out successfully.")
+
                     runOnUiThread {
                         webView.evaluateJavascript("onLogoutSuccess()", null)
                     }
                 } catch (e: Exception) {
+                    Log.e("Appwrite", "Logout error: ${e.message}")
+
                     runOnUiThread {
                         webView.evaluateJavascript("console.log('LogoutError: ${e.message}')", null)
                     }
