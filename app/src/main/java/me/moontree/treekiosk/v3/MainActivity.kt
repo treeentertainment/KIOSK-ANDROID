@@ -128,7 +128,7 @@ class MainActivity : AppCompatActivity() {
                     Log.d("Appwrite", "User not logged in.")
 
                     runOnUiThread {
-                        webView.evaluateJavascript("onLoginFailure('Not logged in')", null)
+                        webView.evaluateJavascript("onLoginFailure('noid')", null)
                     }
                 }
             }
