@@ -132,6 +132,66 @@ class MainActivity : AppCompatActivity() {
         }
 
         @JavascriptInterface
+        fun submitOrder(phoneNumber: String, email: String, shop: String, orderJson: String) {
+            lifecycleScope.launch {
+                try {
+                    // 가게 정보 가져오기
+                    val ownerDocuments = database.listDocuments(
+                        databaseId = "tree-kiosk",
+                        collectionId = "owner",
+                        queries = listOf(Query.equal("email", email))
+                    )
+
+                    if (ownerDocuments.documents.isEmpty()) {
+                        throw Exception("해당 이메일을 가진 가게 정보를 찾을 수 없습니다.")
+                    }
+
+                    val ownerDocument = ownerDocuments.documents.first()
+                    val currentOrderNumber = (ownerDocument.data["order"] as? String)?.toIntOrNull() ?: 0
+
+                    // 주문 데이터 생성
+                    val newOrder = mapOf(
+                        "shop" to shop,
+                        "number" to phoneNumber,
+                        "ordernumber" to currentOrderNumber.toString(),
+                        "order" to orderJson
+                    )
+
+                    val validDocumentId = currentOrderNumber.toString()
+
+                    // Appwrite에 주문 추가
+                    database.createDocument(
+                        databaseId = "tree-kiosk",
+                        collectionId = "data",
+                        documentId = validDocumentId,
+                        data = newOrder
+                    )
+
+                    // 주문 번호 증가 후 업데이트
+                    val newOrderNumber = currentOrderNumber + 1
+                    database.updateDocument(
+                        databaseId = "tree-kiosk",
+                        collectionId = "owner",
+                        documentId = ownerDocument.id,
+                        data = mapOf("order" to newOrderNumber.toString())
+                    )
+
+                    // 성공 시 WebView에서 finish() 호출
+                    runOnUiThread {
+                        webView.evaluateJavascript("finishsend()", null)
+                    }
+
+                } catch (e: Exception) {
+                    Log.e("Appwrite", "주문 제출 오류: ${e.message}")
+
+                    runOnUiThread {
+                        webView.evaluateJavascript("errorsend('주문 제출 실패: ${e.message}')", null)
+                    }
+                }
+            }
+        }
+
+        @JavascriptInterface
         fun checkUserDocument(email: String) {
             lifecycleScope.launch {
                 val (exists, name) = getUserDocument(email)
