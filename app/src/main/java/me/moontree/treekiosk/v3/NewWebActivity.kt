@@ -34,13 +34,6 @@ class NewWebActivity : AppCompatActivity() {
         setupWebView(webView)
 
         webView.loadUrl(url)
-
-        client = Client(this)
-            .setEndpoint("https://cloud.appwrite.io/v1")
-            .setProject("treekiosk")
-
-        database = Databases(client)
-        account = Account(client)
     }
 
     private fun setupWebView(webView: WebView) {
@@ -69,13 +62,13 @@ class NewWebActivity : AppCompatActivity() {
                 try {
                     Log.d("Appwrite", "Starting Google OAuth login...")
 
-                    account.createOAuth2Session(
+                    AppwriteManager.account.createOAuth2Session(
                         activity = this@NewWebActivity,
                         provider = OAuthProvider.GOOGLE
                     )
 
                     // ✅ 로그인 성공 후, 사용자 정보 가져오기
-                    val user = account.get()
+                    val user = AppwriteManager.account.get()
                     Log.d("Appwrite", "User logged in: ${user.email}")
 
                     runOnUiThread {
@@ -99,7 +92,7 @@ class NewWebActivity : AppCompatActivity() {
                 try {
                     Log.d("Appwrite", "Checking auth state...")
 
-                    val user = account.get()
+                    val user = AppwriteManager.account.get()
                     Log.d("Appwrite", "User is logged in: ${user.email}")
 
                     runOnUiThread {
@@ -121,7 +114,7 @@ class NewWebActivity : AppCompatActivity() {
                 try {
                     Log.d("Appwrite", "Logging out...")
 
-                    account.deleteSession("current")
+                    AppwriteManager.account.deleteSession("current")
 
                     Log.d("Appwrite", "User logged out successfully.")
 
@@ -143,7 +136,7 @@ class NewWebActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 try {
                     // 가게 정보 가져오기
-                    val ownerDocuments = database.listDocuments(
+                    val ownerDocuments = AppwriteManager.database.listDocuments(
                         databaseId = "tree-kiosk",
                         collectionId = "owner",
                         queries = listOf(Query.equal("email", email))
@@ -167,7 +160,7 @@ class NewWebActivity : AppCompatActivity() {
                     val validDocumentId = currentOrderNumber.toString()
 
                     // Appwrite에 주문 추가
-                    database.createDocument(
+                    AppwriteManager.database.createDocument(
                         databaseId = "tree-kiosk",
                         collectionId = "data",
                         documentId = validDocumentId,
@@ -176,7 +169,7 @@ class NewWebActivity : AppCompatActivity() {
 
                     // 주문 번호 증가 후 업데이트
                     val newOrderNumber = currentOrderNumber + 1
-                    database.updateDocument(
+                    AppwriteManager.database.updateDocument(
                         databaseId = "tree-kiosk",
                         collectionId = "owner",
                         documentId = ownerDocument.id,
@@ -216,7 +209,7 @@ class NewWebActivity : AppCompatActivity() {
 
     private suspend fun getUserDocument(email: String): Pair<Boolean, String?> {
         return try {
-            val response = database.listDocuments(
+            val response = AppwriteManager.database.listDocuments(
                 databaseId = "tree-kiosk",
                 collectionId = "owner",
                 queries = listOf(Query.equal("email", email))
