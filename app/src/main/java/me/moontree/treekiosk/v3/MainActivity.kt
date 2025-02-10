@@ -10,6 +10,8 @@ import io.appwrite.Client
 import io.appwrite.services.Account
 import io.appwrite.enums.OAuthProvider
 import kotlinx.coroutines.launch
+import io.appwrite.Query
+import io.appwrite.services.Databases
 
 class MainActivity : AppCompatActivity() {
 
