@@ -247,4 +247,4 @@ class NewWebActivity : AppCompatActivity() {
         }
     }
 }
-}
+
