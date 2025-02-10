@@ -12,6 +12,8 @@ import io.appwrite.services.Account
 import io.appwrite.services.Databases
 import io.appwrite.Query
 import kotlinx.coroutines.launch
+import java.io.BufferedReader
+import java.io.InputStreamReader
 
 class MainActivity : AppCompatActivity() {
 
@@ -27,14 +29,14 @@ class MainActivity : AppCompatActivity() {
 
         // WebView 설정
         webView = findViewById(R.id.webView)
-         webView.settings.apply {
-        javaScriptEnabled = true
-        domStorageEnabled = true // ✅ localStorage 활성화
-        allowFileAccess = true
-        allowContentAccess = true
-        databaseEnabled = true // ✅ 웹 저장소(database) 활성화
-         }
-         
+        webView.settings.apply {
+            javaScriptEnabled = true
+            domStorageEnabled = true
+            allowFileAccess = true
+            allowContentAccess = true
+            databaseEnabled = true
+        }
+
         webView.webViewClient = WebViewClient()
         webView.webChromeClient = WebChromeClient()
         webView.addJavascriptInterface(WebAppInterface(), "AndroidApp")
@@ -136,6 +138,11 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+
+        @JavascriptInterface
+        fun getJson(): String {
+            return readJsonFromAssets()
+        }
     }
 
     private suspend fun getUserDocument(email: String): Pair<Boolean, String?> {
@@ -156,6 +163,18 @@ class MainActivity : AppCompatActivity() {
         } catch (e: Exception) {
             Log.e("Appwrite", "사용자 데이터를 가져오는 중 오류 발생: ${e.message}")
             Pair(false, null)
+        }
+    }
+
+    private fun readJsonFromAssets(): String {
+        return try {
+            val inputStream = assets.open("image/file.json")
+            val reader = BufferedReader(InputStreamReader(inputStream))
+            val jsonString = reader.use { it.readText() }
+            jsonString
+        } catch (e: Exception) {
+            e.printStackTrace()
+            "{}" // 에러 발생 시 빈 JSON 반환
         }
     }
 }
