@@ -231,6 +231,13 @@ class MainActivity : AppCompatActivity() {
         fun getJson(): String {
             return readJsonFromAssets()
         }
+
+        @JavascriptInterface
+        fun openNewTab(url: String) {
+            val intent = Intent(this@MainActivity, NewWebActivity::class.java)
+            intent.putExtra("url", url)
+            startActivity(intent)
+        }
     }
 
     private suspend fun getUserDocument(email: String): Pair<Boolean, String?> {
