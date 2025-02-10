@@ -1,32 +1,8 @@
 const cart = document.getElementById("cart-list");
 let order = JSON.parse(localStorage.getItem('order')) || []; // Load from localStorage or initialize
 
-// Appwrite 클라이언트 초기화
-const client = new Appwrite.Client()
-    .setEndpoint('https://cloud.appwrite.io/v1') // Appwrite 엔드포인트
-    .setProject('treekiosk'); // 프로젝트 ID
 
-const account = new Appwrite.Account(client);
-const database = new Appwrite.Databases(client);
-
-function init() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const itemId = urlParams.get('id');
-    const description = urlParams.get('description');
-    const image = urlParams.get('image');
-    const price = parseFloat(urlParams.get('price'));
-    const quantity = parseInt(urlParams.get('quantity'));
-
-    if (itemId && description && image && !isNaN(price) && !isNaN(quantity)) {
-
-        addItemToOrder({ id: itemId, image, description, price , quantity });
-        saveOrder(); // Save order to localStorage
-        window.close();
-        }
-    cartshow();
-}
-
-window.addEventListener('load', init);
+window.addEventListener('load', cartshow);
 
 const cartshow = debounce(function () {
     renderCart();
@@ -110,35 +86,20 @@ function openwindow(name) {
     win.focus();
   }
   
-  async function setLocal(email) {
-    try {
-        const response = await database.listDocuments(
-          'tree-kiosk',        // 데이터베이스 ID
-          'owner',             // 컬렉션 ID
-            [Appwrite.Query.equal('email', email)] // 이메일 주소 사용
-        );
-  
-        if (response.documents.length === 0) {
-            location.href = "index.html";
-            return;
+  function onLoginFailure(message) {
+          window.location.href = "index.html";
         }
-  
-        const doc = response.documents[0]; // 첫 번째 검색 결과
-        if (doc.active) {
-            localStorage.setItem("name", doc.name);
+
+
+        function onUserExists(exists, email, name) {
+            localStorage.setItem("name", name);
             localStorage.setItem("email", email);
-        } else {
-            location.href = "index.html";
+            if (exists === false) {
+                window.location.href = "index.html";
+             }
         }
-    } catch (error) {
-        location.href = "index.html";
-    }
-  }
-  
-  
-  document.addEventListener("DOMContentLoaded", function () {
-    const email = localStorage.getItem('email');
-    if (email) {
-      setLocal(email);
-    }
-  });
+
+window.addEventListener('load', function() {
+    
+    window.AndroidApp.checkUserDocument(localStorage.getItem('email'));
+});
