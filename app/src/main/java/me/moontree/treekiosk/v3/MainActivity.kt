@@ -10,8 +10,8 @@ import io.appwrite.Client
 import io.appwrite.services.Account
 import io.appwrite.enums.OAuthProvider
 import kotlinx.coroutines.launch
-import io.appwrite.Query
 import io.appwrite.services.Databases
+import io.appwrite.Query // ✅ Query import 추가
 
 class MainActivity : AppCompatActivity() {
 
@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // WebView 설정
+        // ✅ WebView 설정
         webView = findViewById(R.id.webView)
         webView.settings.javaScriptEnabled = true
         webView.settings.domStorageEnabled = true
@@ -35,17 +35,17 @@ class MainActivity : AppCompatActivity() {
 
         webView.loadUrl("file:///android_asset/index.html")
 
-        // Appwrite 클라이언트 초기화
+        // ✅ Appwrite 클라이언트 초기화
         client = Client(this)
-            .setEndpoint("https://cloud.appwrite.io/v1") // ✅ Appwrite API 엔드포인트
-            .setProject("treekiosk") // ✅ 프로젝트 ID 입력
-        
-        database = Databases(client)
+            .setEndpoint("https://cloud.appwrite.io/v1") // Appwrite API 엔드포인트
+            .setProject("treekiosk") // 프로젝트 ID 입력
+
+        database = Databases(client) // ✅ Databases 객체 초기화
         account = Account(client)
     }
 
     inner class WebAppInterface {
-        
+
         @JavascriptInterface
         fun checkUserDocument(email: String) {
             lifecycleScope.launch {
@@ -57,7 +57,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    suspend fun isDocumentExists(email: String): Boolean {
+    private suspend fun isDocumentExists(email: String): Boolean {
         return try {
             val response = database.listDocuments(
                 databaseId = "tree-kiosk",
@@ -71,97 +71,74 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @JavascriptInterface
+    fun googleLogin() {
+        lifecycleScope.launch {
+            try {
+                Log.d("Appwrite", "Checking existing session...")
 
-        @JavascriptInterface
-        fun googleLogin() {
-            lifecycleScope.launch {
-                try {
-                    Log.d("Appwrite", "Checking existing session...")
+                val user = account.get() // ✅ 기존 로그인 세션 확인
+                runOnUiThread {
+                    webView.evaluateJavascript("onLoginSuccess('${user.email}')", null)
+                }
+                Log.d("Appwrite", "User already logged in: ${user.email}")
 
-                    val user = account.get() // ✅ 기존 로그인 세션 확인
-                    runOnUiThread {
-                        webView.evaluateJavascript("onLoginSuccess('${user.email}')", null)
-                    }
-                    Log.d("Appwrite", "User already logged in: ${user.email}")
+            } catch (e: Exception) {
+                Log.d("Appwrite", "No existing session. Redirecting to OAuth login.")
+                startOAuthLogin()
+            }
+        }
+    }
 
-                } catch (e: Exception) {
-                    Log.d("Appwrite", "No existing session. Redirecting to OAuth login.")
-                    startOAuthLogin()
+    private fun startOAuthLogin() {
+        runOnUiThread {
+            account.createOAuth2Session(
+                this@MainActivity, // ✅ activity 전달
+                OAuthProvider.GOOGLE
+            )
+        }
+    }
+
+    @JavascriptInterface
+    fun checkAuthState() {
+        lifecycleScope.launch {
+            try {
+                Log.d("Appwrite", "Checking auth state...")
+
+                val user = account.get()
+                Log.d("Appwrite", "User is logged in: ${user.email}")
+
+                runOnUiThread {
+                    webView.evaluateJavascript("onLoginSuccess('${user.email}')", null)
+                }
+            } catch (e: Exception) {
+                Log.d("Appwrite", "User not logged in.")
+
+                runOnUiThread {
+                    webView.evaluateJavascript("onLoginFailure('Not logged in')", null)
                 }
             }
         }
+    }
 
-        private fun startOAuthLogin() {
-            lifecycleScope.launch {
-                try {
-                    Log.d("Appwrite", "Starting Google OAuth login...")
+    @JavascriptInterface
+    fun logout() {
+        lifecycleScope.launch {
+            try {
+                Log.d("Appwrite", "Logging out...")
 
-                    account.createOAuth2Session(
-                        activity = this@MainActivity,
-                        provider = OAuthProvider.GOOGLE
-                    )
+                account.deleteSession("current")
 
-                    // ✅ 로그인 성공 후, 사용자 정보 가져오기
-                    val user = account.get()
+                Log.d("Appwrite", "User logged out successfully.")
 
-                    Log.d("Appwrite", "Google OAuth login successful: ${user.email}")
-
-                    runOnUiThread {
-                        webView.evaluateJavascript("onLoginSuccess('${user.email}')", null)
-                    }
-
-                } catch (e: Exception) {
-                    val errorMessage = e.message ?: "Unknown error"
-                    Log.e("Appwrite", "OAuth login failed: $errorMessage")
-
-                    runOnUiThread {
-                        webView.evaluateJavascript("onLoginFailure('$errorMessage')", null)
-                    }
+                runOnUiThread {
+                    webView.evaluateJavascript("onLogoutSuccess()", null)
                 }
-            }
-        }
+            } catch (e: Exception) {
+                Log.e("Appwrite", "Logout error: ${e.message}")
 
-        @JavascriptInterface
-        fun checkAuthState() {
-            lifecycleScope.launch {
-                try {
-                    Log.d("Appwrite", "Checking auth state...")
-
-                    val user = account.get()
-                    Log.d("Appwrite", "User is logged in: ${user.email}")
-
-                    runOnUiThread {
-                        webView.evaluateJavascript("onLoginSuccess('${user.email}')", null)
-                    }
-                } catch (e: Exception) {
-                    Log.d("Appwrite", "User not logged in.")
-
-                    runOnUiThread {
-                        webView.evaluateJavascript("onLoginFailure('Not logged in')", null)
-                    }
-                }
-            }
-        }
-
-        @JavascriptInterface
-        fun logout() {
-            lifecycleScope.launch {
-                try {
-                    Log.d("Appwrite", "Logging out...")
-
-                    account.deleteSession("current")
-
-                    Log.d("Appwrite", "User logged out successfully.")
-
-                    runOnUiThread {
-                        webView.evaluateJavascript("onLogoutSuccess()", null)
-                    }
-                } catch (e: Exception) {
-                    Log.e("Appwrite", "Logout error: ${e.message}")
-
-                    runOnUiThread {
-                        webView.evaluateJavascript("console.log('LogoutError: ${e.message}')", null)
-                    }
+                runOnUiThread {
+                    webView.evaluateJavascript("console.log('LogoutError: ${e.message}')", null)
                 }
             }
         }
