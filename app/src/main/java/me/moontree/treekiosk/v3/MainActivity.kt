@@ -45,8 +45,6 @@ class MainActivity : AppCompatActivity() {
         javaScriptCanOpenWindowsAutomatically = true  // ✅ window.open() 허용
     }
 
-    webView.webViewClient = WebViewClient()
-
     // ✅ WebChromeClient 추가 (window.open 지원)
     webView.webChromeClient = object : WebChromeClient() {
     override fun onCreateWindow(
