@@ -50,6 +50,7 @@
         }
 
         function onLoginSuccess(email) {
+               
             window.AndroidApp.checkUserDocument(email);
         }
 
@@ -66,7 +67,9 @@
         }
 
 
-        function onUserExists(exists) {
+        function onUserExists(exists, email, name) {
+            localStorage.setItem("name", name);
+            localStorage.setItem("email", email);
             if (exists !== false) {
             toggleVisibility(['front'], ['login-container']);
              } else {
