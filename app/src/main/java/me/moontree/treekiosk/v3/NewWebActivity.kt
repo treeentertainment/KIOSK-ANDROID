@@ -18,7 +18,10 @@ import java.io.InputStreamReader
 class NewWebActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView
-
+    private lateinit var client: Client
+    private lateinit var account: Account
+    private lateinit var database: Databases
+    
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
