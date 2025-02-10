@@ -23,23 +23,36 @@ jobs:
 
       - name: Get All Workflow Runs
         run: |
-          TOKEN=${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          TOKEN=${{ secrets.ORG_PAT }}
           REPO=${{ github.repository }}
-          API_URL="https://api.github.com/repos/$REPO/actions/runs"
+          PAGE=1
+          > runs.txt  # 파일 초기화
 
-          curl -s -H "Authorization: token $TOKEN" "$API_URL" | jq -r '.workflow_runs[] | select(.status == "completed") | .id' > runs.txt
+          while :; do
+            RESPONSE=$(curl -s -H "Authorization: token $TOKEN" \
+                            "https://api.github.com/repos/$REPO/actions/runs?per_page=100&page=$PAGE")
+
+            IDS=$(echo "$RESPONSE" | jq -r '.workflow_runs[].id')
+
+            if [[ -z "$IDS" ]]; then
+              break  # 더 이상 가져올 데이터가 없으면 종료
+            fi
+
+            echo "$IDS" >> runs.txt
+            ((PAGE++))
+          done
 
       - name: Delete Workflow Runs
         run: |
-          TOKEN=${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          TOKEN=${{ secrets.ORG_PAT }}
           REPO=${{ github.repository }}
-          API_URL="https://api.github.com/repos/$REPO/actions/runs"
-
+          
           while read -r ID; do
             if [[ " $EXCEPT " =~ " $ID " ]]; then
               echo "Skipping workflow run ID: $ID"
               continue
             fi
-            curl -X DELETE -H "Authorization: token $TOKEN" "$API_URL/$ID"
+            curl -X DELETE -H "Authorization: token $TOKEN" \
+                 "https://api.github.com/repos/$REPO/actions/runs/$ID"
             echo "Deleted workflow run ID: $ID"
           done < runs.txt
