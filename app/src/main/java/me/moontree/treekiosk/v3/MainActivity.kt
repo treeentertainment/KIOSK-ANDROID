@@ -48,44 +48,20 @@ class MainActivity : AppCompatActivity() {
     webView.webViewClient = WebViewClient()
 
     // ✅ WebChromeClient 추가 (window.open 지원)
-webView.webChromeClient = object : WebChromeClient() {
+    webView.webChromeClient = object : WebChromeClient() {
     override fun onCreateWindow(
         view: WebView?,
         isDialog: Boolean,
         isUserGesture: Boolean,
         resultMsg: Message?
     ): Boolean {
-        val newWebView = WebView(this@MainActivity).apply {
-            settings.javaScriptEnabled = true
-            settings.domStorageEnabled = true
-            settings.setSupportMultipleWindows(true)
-            settings.javaScriptCanOpenWindowsAutomatically = true
-            settings.allowFileAccess = true
-            settings.allowContentAccess = true
-            settings.allowFileAccessFromFileURLs = true
-            settings.allowUniversalAccessFromFileURLs = true
-            webViewClient = WebViewClient()
-            webChromeClient = WebChromeClient()
-        }
-
-        val dialog = Dialog(this@MainActivity).apply {
-            setContentView(newWebView)
-            window?.setLayout(
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.MATCH_PARENT
-            )
-        }
-        dialog.show()
-
-        // ✅ Null 체크 후 실행
-        resultMsg?.let { msg ->
-            (msg.obj as? WebView.WebViewTransport)?.webView = newWebView
-            msg.sendToTarget()
-        }
-
+        val transport = resultMsg?.obj as? WebView.WebViewTransport
+        transport?.webView = webView // 🚀 기존 WebView에서 열도록 설정
+        resultMsg?.sendToTarget()
         return true
     }
 }
+
 
 
     webView.loadUrl("file:///android_asset/index.html")
