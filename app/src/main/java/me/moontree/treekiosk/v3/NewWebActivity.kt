@@ -15,6 +15,8 @@ import kotlinx.coroutines.launch
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import android.content.Intent
+import android.content.DialogInterface
+import androidx.appcompat.app.AlertDialog
 
 class NewWebActivity : AppCompatActivity() {
 
@@ -37,21 +39,42 @@ class NewWebActivity : AppCompatActivity() {
     }
 
     private fun setupWebView(webView: WebView) {
-        webView.settings.apply {
-            javaScriptEnabled = true
-            domStorageEnabled = true
-            allowFileAccess = true
-            allowContentAccess = true
-            databaseEnabled = true
-            allowFileAccessFromFileURLs = true
-            setSupportMultipleWindows(true)
-            javaScriptCanOpenWindowsAutomatically = true
-        }
-
-        webView.webViewClient = WebViewClient()
-        webView.webChromeClient = WebChromeClient()
-        webView.addJavascriptInterface(WebAppInterface(), "AndroidApp")
+    webView.settings.apply {
+        javaScriptEnabled = true
+        domStorageEnabled = true
+        allowFileAccess = true
+        allowContentAccess = true
+        databaseEnabled = true
+        allowFileAccessFromFileURLs = true
+        setSupportMultipleWindows(true)
+        javaScriptCanOpenWindowsAutomatically = true
     }
+
+    webView.webViewClient = WebViewClient()
+
+    // ✅ WebChromeClient 오버라이드하여 alert 변경
+    webView.webChromeClient = object : WebChromeClient() {
+        override fun onJsAlert(
+            view: WebView?,
+            url: String?,
+            message: String?,
+            result: JsResult?
+        ): Boolean {
+            AlertDialog.Builder(this@NewWebActivity)
+                .setTitle("알림") // ✅ 앱 이름으로 변경
+                .setMessage(message)
+                .setPositiveButton(android.R.string.ok) { dialog: DialogInterface, which: Int -> 
+            result?.confirm()
+                }  
+                .setCancelable(false)
+                .show()
+            return true // ✅ 기본 alert 처리 완료
+        }
+    }
+
+    webView.addJavascriptInterface(WebAppInterface(), "AndroidApp")
+}
+
 
     
     inner class WebAppInterface {
