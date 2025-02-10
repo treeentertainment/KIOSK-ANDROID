@@ -2,11 +2,18 @@ package me.moontree.treekiosk.v3
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.webkit.JavascriptInterface
-import android.webkit.WebChromeClient
-import android.webkit.WebView
-import android.webkit.WebViewClient
+import android.util.Log
+import android.webkit.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import io.appwrite.Client
+import io.appwrite.enums.OAuthProvider
+import io.appwrite.services.Account
+import io.appwrite.services.Databases
+import io.appwrite.Query
+import kotlinx.coroutines.launch
+import java.io.BufferedReader
+import java.io.InputStreamReader
 
 class NewWebActivity : AppCompatActivity() {
 
