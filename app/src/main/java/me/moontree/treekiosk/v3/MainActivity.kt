@@ -2,6 +2,7 @@ package me.moontree.treekiosk.v3
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.os.Message
 import android.util.Log
 import android.webkit.*
 import androidx.appcompat.app.AppCompatActivity
