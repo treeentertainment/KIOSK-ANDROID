@@ -19,14 +19,7 @@ function init() {
 
 // 데이터 로드
 function loadItem() {
-    fetch("image/file.json")
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
+             var data = window.AndroidApp.getJson(); 
             ul.innerHTML = ''; // Clear existing content
             for (let key in data) {
                 const listItem = display(data[key], key);
@@ -35,11 +28,7 @@ function loadItem() {
             // Preload images using lazy loading
             let images = document.querySelectorAll(".lazyload");
             fastLazyLoad(images);
-        })
-        .catch(error => {
-            console.error("Error fetching data:", error);
-        });
-}
+        }
 
 // 아이템 표시
 function display(child, key) {
