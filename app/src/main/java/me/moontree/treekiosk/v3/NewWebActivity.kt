@@ -17,6 +17,7 @@ import java.io.InputStreamReader
 import android.content.Intent
 import android.content.DialogInterface
 import androidx.appcompat.app.AlertDialog
+import java.util.UUID
 
 class NewWebActivity : AppCompatActivity() {
 
@@ -179,7 +180,7 @@ class NewWebActivity : AppCompatActivity() {
                         "order" to orderJson
                     )
 
-                    val validDocumentId = currentOrderNumber.toString()
+                     val validDocumentId = UUID.randomUUID().toString
 
                     // Appwrite에 주문 추가
                     AppwriteManager.database.createDocument(
