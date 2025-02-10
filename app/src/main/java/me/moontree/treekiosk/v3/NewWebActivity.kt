@@ -70,7 +70,7 @@ class NewWebActivity : AppCompatActivity() {
                     Log.d("Appwrite", "Starting Google OAuth login...")
 
                     account.createOAuth2Session(
-                        activity = this@MainActivity,
+                        activity = this@NewWebActivity,
                         provider = OAuthProvider.GOOGLE
                     )
 
