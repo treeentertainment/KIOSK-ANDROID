@@ -79,16 +79,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     inner class WebAppInterface {
+        
         @JavascriptInterface
         fun closeWindow() {
             runOnUiThread { finish() }
         }
-    }
-
-
-
-    inner class WebAppInterface {
-
+        
         @JavascriptInterface
         fun googleLogin() {
             lifecycleScope.launch {
