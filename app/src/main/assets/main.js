@@ -1,11 +1,3 @@
-// Appwrite 클라이언트 초기화
-const client = new Appwrite.Client()
-    .setEndpoint('https://cloud.appwrite.io/v1') // Appwrite 엔드포인트
-    .setProject('treekiosk'); // 프로젝트 ID
-
-const account = new Appwrite.Account(client);
-const database = new Appwrite.Databases(client, 'treekiosk');
-const storage = new Appwrite.Storage(client);
 const form = document.getElementById("select");
 
 // DOM 요소 참조
@@ -218,11 +210,9 @@ function getItemIndex(description) {
     return order.findIndex(item => item.description.trim() === description.trim());
 }
 
-// 초기 로그인 확인
-account.get()
-    .then(user => console.log("Logged in as:", user))
-    .catch(() => location.href = "index.html");
 
+
+// 초기 로그인 확인
 function openWindow(name) {
 
     var url = `${name}`;
@@ -238,4 +228,22 @@ function openWindow(name) {
   if (event.data === "home") {
     window.location.href = `index.html`;
   }
+  }
+
+function onLoginFailure(message) {
+          window.location.href = "index.html";
+        }
+
+
+        function onUserExists(exists, email, name) {
+            localStorage.setItem("name", name);
+            localStorage.setItem("email", email);
+            if (exists === false) {
+                window.location.href = "index.html";
+             }
+        }
+
+window.addEventListener('load', function() {
+    
+    window.AndroidApp.checkUserDocument(localStorage.getItem('email'));
 });
