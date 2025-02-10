@@ -40,7 +40,7 @@
 
         // 페이지 로드 시 Android에서 로그인 상태 확인 요청
         document.addEventListener('DOMContentLoaded', () => {
-            if (window.AndroidInterface) {
+            if (window.AndroidApp) {
                 window.AndroidApp.checkAuthState();
             }
         })
