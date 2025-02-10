@@ -33,13 +33,8 @@ class MainActivity : AppCompatActivity() {
         setupWebView(webView)
 
         webView.loadUrl("file:///android_asset/index.html")
+        AppwriteManager.initialize(this)
 
-        client = Client(this)
-            .setEndpoint("https://cloud.appwrite.io/v1")
-            .setProject("treekiosk")
-
-        database = Databases(client)
-        account = Account(client)
     }
 
     private fun setupWebView(webView: WebView) {
