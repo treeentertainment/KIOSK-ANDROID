@@ -101,6 +101,27 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private suspend fun getUserDocument(email: String): Pair<Boolean, String?> {
+    return try {
+        val response = database.listDocuments(
+            databaseId = "tree-kiosk",
+            collectionId = "owner",
+            queries = listOf(Query.equal("email", email))
+        )
+
+        if (response.documents.isNotEmpty()) {
+            val document = response.documents.first()
+            val name = document.data["name"] as? String ?: "Unknown"
+            Pair(true, name)
+        } else {
+            Pair(false, null)
+        }
+    } catch (e: Exception) {
+        Log.e("Appwrite", "Error fetching user data: ${e.message}")
+        Pair(false, null)
+    }
+}
+
     inner class WebAppInterface {
 
         @JavascriptInterface
