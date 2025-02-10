@@ -7,6 +7,7 @@
 <img src="https://img.shields.io/badge/css-1572B6?style=for-the-badge&logo=css3&logoColor=white">
 <img src="https://img.shields.io/badge/Neutralinojs-F89901?style=for-the-badge&logo=neutralinojs&logoColor=white">
 <img src="https://img.shields.io/badge/Appwrite-FD366E?style=for-the-badge&logo=appwrite&logoColor=white">
+<img src="https://img.shields.io/badge/Githubactions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white">
 
 > ## 방문 수
 
