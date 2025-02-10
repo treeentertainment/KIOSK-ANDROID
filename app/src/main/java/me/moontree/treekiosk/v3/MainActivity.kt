@@ -91,13 +91,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startOAuthLogin() {
-        runOnUiThread {
-            account.createOAuth2Session(
-                this@MainActivity, // ✅ activity 전달
-                OAuthProvider.GOOGLE
-            )
-        }
-    }
+    account.createOAuth2Session(
+        this@MainActivity, // ✅ activity 전달
+        OAuthProvider.GOOGLE
+    )
+}
+
 
     @JavascriptInterface
     fun checkAuthState() {
