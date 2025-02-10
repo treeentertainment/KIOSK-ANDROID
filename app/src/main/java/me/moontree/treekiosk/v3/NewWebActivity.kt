@@ -80,9 +80,9 @@ class NewWebActivity : AppCompatActivity() {
     inner class WebAppInterface {
      @JavascriptInterface
      fun sendMessageToMain(message: String) {
-    val intent = Intent("NEW_WEB_MESSAGE")
-    intent.putExtra("message", message)
-    sendBroadcast(intent)
+       val intent = Intent("NEW_WEB_MESSAGE")
+       intent.putExtra("message", message)
+       sendBroadcast(intent)
      }
 
         @JavascriptInterface
