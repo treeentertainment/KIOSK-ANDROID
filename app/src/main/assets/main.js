@@ -19,7 +19,8 @@ function init() {
 
 // 데이터 로드
 function loadItem() {
-             var data = window.AndroidApp.getJson(); 
+          let jsonString = window.AndroidApp.getJson(); // Android에서 JSON 가져오기
+          let data = JSON.parse(jsonString);
             ul.innerHTML = ''; // Clear existing content
             for (let key in data) {
                 const listItem = display(data[key], key);
@@ -80,8 +81,8 @@ function preloadImage(img) {
 
 // 편집 기능
 function edit(event) {
-    var data = window.AndroidApp.getJson();
-    const id = event.target.dataset.id;
+                let jsonString = window.AndroidApp.getJson(); // Android에서 JSON 가져오기
+                let data = JSON.parse(jsonString);    const id = event.target.dataset.id;
             const item = data[id];
 
             // 기존 이벤트 리스너 제거 후 추가 (중복 방지)
