@@ -1,0 +1,44 @@
+name: Delete Workflows
+
+on:
+  schedule:
+    - cron: "0 0 * * *"  # 매일 자정(UTC 기준)
+  workflow_dispatch:  # 수동 실행 가능
+
+jobs:
+  delete-workflows:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get Excepted Workflow Runs
+        run: |
+          touch except.txt
+          EXCEPT=$(cat except.txt | tr '\n' ' ')
+          echo "EXCEPT=$EXCEPT" >> $GITHUB_ENV
+
+      - name: Get All Workflow Runs
+        run: |
+          TOKEN=${{ secrets.GITHUB_TOKEN }}
+          REPO=${{ github.repository }}
+          API_URL="https://api.github.com/repos/$REPO/actions/runs"
+          
+          curl -s -H "Authorization: token $TOKEN" $API_URL | jq -r '.workflow_runs[].id' > runs.txt
+
+      - name: Delete Workflow Runs
+        run: |
+          TOKEN=${{ secrets.GITHUB_TOKEN }}
+          REPO=${{ github.repository }}
+          API_URL="https://api.github.com/repos/$REPO/actions/runs"
+
+          while read -r ID; do
+            if [[ " $EXCEPT " =~ " $ID " ]]; then
+              echo "Skipping workflow run ID: $ID"
+              continue
+            fi
+            curl -X DELETE -H "Authorization: token $TOKEN" "$API_URL/$ID"
+            echo "Deleted workflow run ID: $ID"
+          done < runs.txt
