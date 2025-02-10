@@ -43,7 +43,9 @@ class MainActivity : AppCompatActivity() {
         webView.webViewClient = WebViewClient()
         webView.webChromeClient = WebChromeClient()
         webView.addJavascriptInterface(WebAppInterface(), "AndroidApp")
-
+        
+        webView.setWebContentsDebuggingEnabled(true);
+        
         webView.loadUrl("file:///android_asset/index.html")
 
         // Appwrite 클라이언트 초기화
