@@ -16,6 +16,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var webView: WebView
     private lateinit var client: Client
     private lateinit var account: Account
+    private lateinit var database: Databases
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,11 +37,39 @@ class MainActivity : AppCompatActivity() {
         client = Client(this)
             .setEndpoint("https://cloud.appwrite.io/v1") // ✅ Appwrite API 엔드포인트
             .setProject("treekiosk") // ✅ 프로젝트 ID 입력
-
+        
+        database = Databases(client)
         account = Account(client)
     }
 
     inner class WebAppInterface {
+        
+        @JavascriptInterface
+        fun checkUserDocument(email: String) {
+            lifecycleScope.launch {
+                val exists = isDocumentExists(email)
+                runOnUiThread {
+                    webView.evaluateJavascript("onUserExists($exists);", null)
+                }
+            }
+        }
+    }
+
+    suspend fun isDocumentExists(email: String): Boolean {
+        return try {
+            val response = database.listDocuments(
+                databaseId = "tree-kiosk",
+                collectionId = "owner",
+                queries = listOf(Query.equal("email", email))
+            )
+            response.documents.isNotEmpty()
+        } catch (e: Exception) {
+            Log.e("Appwrite", "사용자 데이터를 가져오는 중 오류 발생: ${e.message}")
+            false
+        }
+    }
+
+
         @JavascriptInterface
         fun googleLogin() {
             lifecycleScope.launch {
