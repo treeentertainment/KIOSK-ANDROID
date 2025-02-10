@@ -64,3 +64,13 @@
         function onLogoutSuccess() {
             toggleVisibility(['login-container'], ['front']);    
         }
+
+
+        function onUserExists(exists) {
+            if (exists !== false) {
+            toggleVisibility(['front'], ['login-container']);
+             } else {
+            toggleVisibility(['nouser'], ['front', 'login-container']);
+           }
+       }
+
