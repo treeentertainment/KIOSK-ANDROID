@@ -73,13 +73,15 @@ webView.webChromeClient = object : WebChromeClient() {
 
     // JavaScript alert() 커스텀 처리
     override fun onJsAlert(view: WebView?, url: String?, message: String?, result: JsResult?): Boolean {
-        AlertDialog.Builder(view?.context ?: return false)
-            .setTitle("알림") // 원하는 제목으로 변경
-            .setMessage(message)
-            .setPositiveButton(android.R.string.ok) { _, _ -> result?.confirm() }
-            .setCancelable(false)
-            .show()
-        return true // 기본 Alert을 대체
+    AlertDialog.Builder(view?.context ?: return false)
+        .setTitle("알림")
+        .setMessage(message)
+        .setPositiveButton(android.R.string.ok) { dialog: DialogInterface, which: Int -> 
+            result?.confirm()
+        }
+        .setCancelable(false)
+        .show()
+    return true
     }
 }
 
