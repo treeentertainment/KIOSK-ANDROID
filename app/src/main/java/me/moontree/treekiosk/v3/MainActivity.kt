@@ -292,4 +292,23 @@ webView.webChromeClient = object : WebChromeClient() {
             "{}" // 에러 발생 시 빈 JSON 반환
         }
     }
+    private val messageReceiver = object : BroadcastReceiver() {
+    override fun onReceive(context: Context?, intent: Intent?) {
+        val message = intent?.getStringExtra("message") ?: return
+        webView.evaluateJavascript(
+            "window.dispatchEvent(new MessageEvent('message', { data: '$message' }));",
+            null
+        )
+    }
+}
+
+override fun onResume() {
+    super.onResume()
+    registerReceiver(messageReceiver, IntentFilter("NEW_WEB_MESSAGE"))
+}
+
+override fun onPause() {
+    super.onPause()
+    unregisterReceiver(messageReceiver)
+}
 }
