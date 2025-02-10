@@ -54,7 +54,7 @@
         }
 
         function onLoginFailure(message) {
-            document.getElementById('status').innerHTML = `<p style="color:red;">로그인 실패: ${message}</p>`;
+          toggleVisibility(['login-container'], ['front']);
         }
 
         function logout() {
