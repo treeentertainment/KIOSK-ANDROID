@@ -23,15 +23,15 @@ jobs:
 
       - name: Get All Workflow Runs
         run: |
-          TOKEN=${{ secrets.GITHUB_TOKEN }}
+          TOKEN=${{ secrets.PERSONAL_ACCESS_TOKEN }}
           REPO=${{ github.repository }}
           API_URL="https://api.github.com/repos/$REPO/actions/runs"
-          
-          curl -s -H "Authorization: token $TOKEN" $API_URL | jq -r '.workflow_runs[].id' > runs.txt
+
+          curl -s -H "Authorization: token $TOKEN" "$API_URL" | jq -r '.workflow_runs[] | select(.status == "completed") | .id' > runs.txt
 
       - name: Delete Workflow Runs
         run: |
-          TOKEN=${{ secrets.GITHUB_TOKEN }}
+          TOKEN=${{ secrets.PERSONAL_ACCESS_TOKEN }}
           REPO=${{ github.repository }}
           API_URL="https://api.github.com/repos/$REPO/actions/runs"
 
