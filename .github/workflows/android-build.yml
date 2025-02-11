@@ -33,6 +33,14 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      # ✅ Gradle Wrapper가 없으면 생성
+      - name: Generate Gradle Wrapper if missing
+        run: |
+          if [ ! -f gradlew ]; then
+            echo "Gradle Wrapper not found, generating it..."
+            gradle wrapper
+          fi
+
       # ✅ Gradle 실행 전 캐시를 활용하도록 설정
       - name: Build with Gradle (Debug & Release)
         run: ./gradlew assembleDebug assembleRelease --parallel --build-cache
