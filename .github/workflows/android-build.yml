@@ -57,27 +57,24 @@ jobs:
           chmod +x gradlew
           
       # ✅ Gradle 실행
-      - name: Build with Gradle (Debug & Release)
-        run: ./gradlew assembleDebug assembleRelease --parallel --build-cache
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug
 
-      # ✅ APK 빌드 후 결과 확인
-      - name: Verify APK Output
-        run: ls -al app/build/outputs/apk/release/
-
-      # ✅ Debug APK 업로드
-      - name: Upload Debug APK
+      - name: Build Release APK
+        run: ./gradlew assembleRelease
+   
+      - name: Upload Debug APK as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+           name: android-debug-apk
+           path: app/build/outputs/apk/debug/app-debug.apk
 
-      # ✅ Release APK 업로드
-      - name: Upload Release APK
+      - name: Upload Release APK as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-release-apk
-          path: app/build/outputs/apk/release/app-release.apk
-
+           name: android-release-apk
+           path: app/build/outputs/apk/release/app-release.apk
+        
   update_except_txt:
     name: Update except.txt with current run ID
     runs-on: ubuntu-latest
