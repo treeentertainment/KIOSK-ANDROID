@@ -25,7 +25,7 @@ jobs:
             -keyalg RSA -keysize 2048 -validity 10000 \
             -dname "CN=moon, OU=treeentertainment, O=treeentertainment, L=seoul, ST=seoul, C=KR"
           
-          base64 keystore.jks > keystore.jks.base64
+          base64 app/keystore.jks > app/keystore.jks.base64
           echo "Keystore generated and encoded."
 
       # ✅ Gradle 캐시 사용 (속도 개선)
