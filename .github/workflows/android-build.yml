@@ -28,6 +28,12 @@ jobs:
           base64 app/keystore.jks > app/keystore.jks.base64
           echo "Keystore generated and encoded."
 
+      - name: Set up signing environment
+        run: |
+          echo "KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}" >> $GITHUB_ENV
+          echo "KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> $GITHUB_ENV
+          echo "KEY_ALIAS=${{ secrets.KEY_ALIAS }}" >> $GITHUB_ENV
+
       # ✅ Gradle 캐시 사용 (속도 개선)
       - name: Cache Gradle dependencies
         uses: actions/cache@v4
