@@ -41,7 +41,15 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-
+          
+      - name: Generate Gradle Wrapper if missing
+        run: |
+          if [ ! -f gradlew ]; then
+            echo "Gradle Wrapper not found, generating it..."
+            gradle wrapper
+          fi
+          chmod +x gradlew
+          
       # ✅ Gradle 실행
       - name: Build with Gradle (Debug & Release)
         run: ./gradlew assembleDebug assembleRelease --parallel --build-cache
