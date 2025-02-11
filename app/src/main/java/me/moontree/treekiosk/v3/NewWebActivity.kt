@@ -56,24 +56,22 @@ class NewWebActivity : AppCompatActivity() {
     webView.webViewClient = WebViewClient()
 
 webView.webChromeClient = object : WebChromeClient() {
-    override fun onJsAlert(
-        view: WebView?,
-        url: String?,
-        message: String?,
-        result: JsResult?
-    ): Boolean {
-        view?.context?.let { context ->
-            MaterialAlertDialogBuilder(context)
-                .setTitle("알림")  // 다이얼로그 제목
-                .setMessage(message)  // 메시지
-                .setPositiveButton(android.R.string.ok) { _, _ ->
-                    result?.confirm()  // "OK" 버튼 클릭 시 확인
-                }
-                .setCancelable(false)  // 다이얼로그를 취소 불가로 설정
-                .show()  // 다이얼로그 표시
-        }
-        return true  // 기본 alert 처리 완료
-    }
+  override fun onJsAlert(
+            view: WebView?,
+            url: String?,
+            message: String?,
+            result: JsResult?
+        ): Boolean {
+            AlertDialog.Builder(this@NewWebActivity)
+                .setTitle("알림") // ✅ 앱 이름으로 변경
+                .setMessage(message)
+                .setPositiveButton(android.R.string.ok) { dialog: DialogInterface, which: Int -> 
+            result?.confirm()
+                }  
+                .setCancelable(false)
+                .show()
+            return true // ✅ 기본 alert 처리 완료
+  }  
 }
 
 
