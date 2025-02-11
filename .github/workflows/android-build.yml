@@ -23,7 +23,7 @@ jobs:
             -keypass ${{ secrets.KEY_PASSWORD }} \
             -alias ${{ secrets.KEY_ALIAS }} \
             -keyalg RSA -keysize 2048 -validity 10000 \
-            -dname "CN=Example, OU=Org, O=Company, L=City, ST=State, C=US"
+            -dname "CN=moon, OU=treeentertainment, O=treeentertainment, L=seoul, ST=seoul, C=KR"
           
           base64 keystore.jks > keystore.jks.base64
           echo "Keystore generated and encoded."
