@@ -35,6 +35,22 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
+
+    signingConfigs {
+        create("release") {
+            storeFile = file("keystore.jks")
+            storePassword = System.getenv("890890890")
+            keyAlias = System.getenv("treekiosk")
+            keyPassword = System.getenv("890890890")
+        }
+    }
+
+    buildTypes {
+        getByName("release") {
+            signingConfig = signingConfigs.getByName("release")
+        }
+    }
+
 }
 
 java {
