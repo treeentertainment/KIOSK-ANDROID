@@ -235,17 +235,6 @@ fun submitOrder(phoneNumber: String, email: String, shop: String, orderJson: Str
             finish() // ✅ 현재 액티비티 종료
         }
     }
-        @JavascriptInterface
-        fun sendMessageToMainActivity(message: String) {
-            sendMessage(message)
-        }
-      private fun sendMessage(message: String) {
-            runOnUiThread {
-                val intent = Intent("me.moontree.treekiosk.v3.MESSAGE_FROM_NEW_WEB_ACTIVITY") // 액션 이름
-                intent.putExtra("messageFromNewWebActivity", message)
-                sendBroadcast(intent) // 브로드캐스트 전송
-            }
-      }
     }
 
     private suspend fun getUserDocument(email: String): Pair<Boolean, String?> {
@@ -281,4 +270,3 @@ fun submitOrder(phoneNumber: String, email: String, shop: String, orderJson: Str
         }
     }
 }
-
