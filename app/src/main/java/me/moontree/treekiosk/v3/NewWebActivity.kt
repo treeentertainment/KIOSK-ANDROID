@@ -18,6 +18,7 @@ import android.content.Intent
 import android.content.DialogInterface
 import androidx.appcompat.app.AlertDialog
 import io.appwrite.ID
+import android.webkit.JavascriptInterface
 
 class NewWebActivity : AppCompatActivity() {
 
