@@ -15,6 +15,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import io.appwrite.ID
+import io.appwrite.Client
 import io.appwrite.enums.OAuthProvider
 import io.appwrite.services.Account
 import io.appwrite.services.Databases
@@ -32,30 +33,45 @@ class MainActivity : AppCompatActivity(), MessageListener { // ✅ MessageListen
     private val messageReceiver = MessageReceiver(this)
 
     interface MessageListener {
-        fun onMessageReceived(message: String)
-    }
+    fun onMessageReceived(message: String)
+}
 
-    class MessageReceiver(private val listener: MessageListener) : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            val message = intent.getStringExtra("me.moontree.treekiosk.v3.MESSAGE_FROM_NEW_WEB_ACTIVITY")
-            message?.let { listener.onMessageReceived(it) }
-        }
+class MessageReceiver(private val listener: MessageListener) : BroadcastReceiver() {
+    override fun onReceive(context: Context, intent: Intent) {
+        val message = intent.getStringExtra("me.moontree.treekiosk.v3.MESSAGE_FROM_NEW_WEB_ACTIVITY")
+        message?.let { listener.onMessageReceived(it) }
     }
+}
 
-    @SuppressLint("SetJavaScriptEnabled")
+class MainActivity : AppCompatActivity(), MessageListener {  
+    private lateinit var webView: WebView
+    private lateinit var client: Client
+    private lateinit var account: Account
+    private lateinit var database: Databases
+    private lateinit var messageReceiver: MessageReceiver // ✅ 중복 선언 제거
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         webView = findViewById(R.id.webView)
-        setupWebView(webView)
-
+        messageReceiver = MessageReceiver(this) // ✅ 초기화
         webView.loadUrl("file:///android_asset/index.html")
-        AppwriteManager.initialize(this)
-
+        AppwriteManager.initialize(this)       
+        setupWebView(webView)
         val intentFilter = IntentFilter("me.moontree.treekiosk.v3.MESSAGE_FROM_NEW_WEB_ACTIVITY")
         registerReceiver(messageReceiver, intentFilter)
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(messageReceiver)
+    }
+
+    override fun onMessageReceived(message: String) {
+        val safeMessage = message.replace("'", "\\'")
+        webView.evaluateJavascript("messagenew('$safeMessage')", null)
+    }
+}
 
     private fun setupWebView(webView: WebView) {
         webView.settings.apply {
@@ -75,24 +91,20 @@ class MainActivity : AppCompatActivity(), MessageListener { // ✅ MessageListen
         webView.webViewClient = WebViewClient()
         webView.webChromeClient = object : WebChromeClient() {
             override fun onCreateWindow(
-                view: WebView?,
-                isDialog: Boolean,
-                isUserGesture: Boolean,
-                resultMsg: Message?
-            ): Boolean {
-                val transport = resultMsg?.obj as? WebView.WebViewTransport
-                transport?.webView = WebView(this@MainActivity).apply {
-                    setupWebView(this)
-                }
-                resultMsg?.sendToTarget()
+       view: WebView?,
+        isDialog: Boolean,
+        isUserGesture: Boolean,
+       resultMsg: Message?
+       ): Boolean {
+        val transport = resultMsg?.obj as? WebView.WebViewTransport
+       val newWebView = WebView(this@MainActivity)
+       setupWebView(newWebView)
+       transport?.webView = newWebView
+       resultMsg?.sendToTarget()
 
-                val newUrl = view?.url ?: "about:blank"
-                val intent = Intent(this@MainActivity, NewWebActivity::class.java)
-                intent.putExtra("url", newUrl)
-                startActivity(intent)
-
-                return true
-            }
+       startActivity(Intent(this@MainActivity, NewWebActivity::class.java))
+        return true
+  }
 
             override fun onJsAlert(
                 view: WebView?,
@@ -114,12 +126,6 @@ class MainActivity : AppCompatActivity(), MessageListener { // ✅ MessageListen
 
         webView.addJavascriptInterface(WebAppInterface(), "AndroidApp")
     }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        unregisterReceiver(messageReceiver)
-    }
-
     inner class WebAppInterface {
 
         @JavascriptInterface
@@ -144,17 +150,19 @@ class MainActivity : AppCompatActivity(), MessageListener { // ✅ MessageListen
                 } catch (e: Exception) {
                     val errorMessage = e.message ?: "Unknown error"
                     runOnUiThread {
-                        webView.evaluateJavascript("onLoginFailure('<span class="math-inline">errorMessage'\)", null\)
+                        val errorMessage = e.message?.replace("'", "\\'") ?: "Unknown error"
+webView.evaluateJavascript("onLoginFailure('$errorMessage')", null)
+                    }
 }
 }
-}
-}
-@JavascriptInterface
+        }
+
+        @JavascriptInterface
 fun checkAuthState() {
     lifecycleScope.launch {
         try {
-            val user = AppwriteManager.account.get()
-            val email = user.email.replace("'", "\\'") // JavaScript 문자열 안전 처리
+            val user = withContext(Dispatchers.IO) { AppwriteManager.account.get() }
+            val email = user.email.replace("'", "\\'")
 
             runOnUiThread {
                 webView.evaluateJavascript("onLoginSuccess('$email')", null)
@@ -190,7 +198,7 @@ fun checkAuthState() {
                     val ownerDocuments = AppwriteManager.database.listDocuments(
                         databaseId = "tree-kiosk",
                         collectionId = "owner",
-                        queries = listOf(Query.equal("email", email))
+                        queries = listOf(Query.equal("email", listOf(email)))
                     )
 
                     if (ownerDocuments.documents.isEmpty()) {
