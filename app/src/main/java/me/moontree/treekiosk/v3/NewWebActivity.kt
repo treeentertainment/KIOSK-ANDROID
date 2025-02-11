@@ -79,6 +79,13 @@ class NewWebActivity : AppCompatActivity() {
 
     
     inner class WebAppInterface {        
+      @JavascriptInterface
+        public void sendMessage(String message) {
+            Intent intent = new Intent(NewActivity.this, MainActivity.class);
+            intent.putExtra("message", message);
+            startActivity(intent);
+        }
+        
         @JavascriptInterface
         fun googleLogin() {
             lifecycleScope.launch {
