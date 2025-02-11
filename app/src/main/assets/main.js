@@ -223,10 +223,8 @@ window.addEventListener('load', function() {
     window.AndroidApp.checkUserDocument(localStorage.getItem('email'));
 });
 
-window.addEventListener("message", function(event) {
-    console.log("Received message:", event.data);
-
-    if (event.data === "home") {
-     window.location.href = `index.html`;   
-    }
-});
+function onmessage(msg) {
+if(msg === "home") {
+    window.location.href = "index.html";
+}
+}
