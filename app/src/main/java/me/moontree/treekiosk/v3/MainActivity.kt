@@ -23,8 +23,8 @@ import kotlinx.coroutines.launch
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
-class MainActivity : AppCompatActivity(), MessageListener {
-
+class MainActivity : AppCompatActivity(), MessageListener { // ✅ MessageListener 구현
+    private lateinit var messageReceiver: MessageReceiver
     private lateinit var webView: WebView
     private lateinit var client: Client
     private lateinit var account: Account
