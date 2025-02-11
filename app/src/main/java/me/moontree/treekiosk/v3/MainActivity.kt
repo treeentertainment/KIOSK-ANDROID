@@ -51,8 +51,7 @@ class MainActivity : AppCompatActivity() {
             // Use the message received from NewWebActivity
             if (message != null) {
                 Log.d("MainActivity", "Message from NewWebActivity: $message")
-                // Now you have the message in MainActivity
-                // Update your UI or perform other actions with the message
+                sendToWebView(webView, message)
             }
         }
     }
