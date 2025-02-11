@@ -25,7 +25,17 @@ class MainActivity : AppCompatActivity() {
     private lateinit var client: Client
     private lateinit var account: Account
     private lateinit var database: Databases
+    private val messageReceiver = MessageReceiver()
 
+    inner class MessageReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val message = intent.getStringExtra("messageFromNewWebActivity")
+            if (message != null) {
+                webView.evaluateJavascript("messagenew('$message')", null)
+            }
+        }
+    }
+    
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,6 +47,8 @@ class MainActivity : AppCompatActivity() {
         webView.loadUrl("file:///android_asset/index.html")
         AppwriteManager.initialize(this)
 
+        val intentFilter = IntentFilter("me.moontree.treekiosk.v3.MESSAGE_FROM_NEW_WEB_ACTIVITY")
+        registerReceiver(messageReceiver, intentFilter)
     }
 
     private fun setupWebView(webView: WebView) {
@@ -75,6 +87,11 @@ webView.webChromeClient = object : WebChromeClient() {
         startActivity(intent)
 
         return true
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(messageReceiver)
     }
 
     // JavaScript alert() 커스텀 처리
