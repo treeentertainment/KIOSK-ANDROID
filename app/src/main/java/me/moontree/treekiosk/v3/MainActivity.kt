@@ -37,6 +37,14 @@ class MainActivity : AppCompatActivity() {
         webView.loadUrl("file:///android_asset/index.html")
         AppwriteManager.initialize(this)
 
+   String message = getIntent().getStringExtra("message");
+    if (message != null) {
+        sendToWebView(webView1, message);
+    }
+    }
+    
+    private void sendToWebView(WebView webView, String message) {
+    webView.evaluateJavascript("onmessage('" + message + "')", null);
     }
 
     private fun setupWebView(webView: WebView) {
