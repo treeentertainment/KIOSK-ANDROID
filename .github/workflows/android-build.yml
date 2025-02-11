@@ -18,7 +18,7 @@ jobs:
       - name: Generate Keystore
         run: |
           keytool -genkeypair -v \
-            -keystore keystore.jks \
+            -keystore app/keystore.jks \
             -storepass ${{ secrets.KEYSTORE_PASSWORD }} \
             -keypass ${{ secrets.KEY_PASSWORD }} \
             -alias ${{ secrets.KEY_ALIAS }} \
