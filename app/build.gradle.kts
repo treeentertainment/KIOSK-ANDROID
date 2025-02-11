@@ -67,7 +67,7 @@ dependencies {
 
     implementation("androidx.fragment:fragment-ktx:1.6.2")
     implementation("androidx.recyclerview:recyclerview:1.3.1")
-    implementation("com.google.android.material:material:1.11.0")
+    implementation("com.google.android.material:material:1.13.0")
 
     implementation("androidx.viewpager2:viewpager2:1.1.0")
     implementation("androidx.coordinatorlayout:coordinatorlayout:1.2.0")
