@@ -85,6 +85,7 @@ fun sendMessage(message: String) {
     val intent = Intent(this@NewWebActivity, MainActivity::class.java)
     intent.putExtra("message", message)
     startActivity(intent)
+    finish() 
 }
 
         
