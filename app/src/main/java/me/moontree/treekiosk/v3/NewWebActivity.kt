@@ -19,6 +19,7 @@ import android.content.DialogInterface
 import androidx.appcompat.app.AlertDialog
 import io.appwrite.ID
 import android.webkit.JavascriptInterface
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class NewWebActivity : AppCompatActivity() {
 
@@ -62,15 +63,15 @@ class NewWebActivity : AppCompatActivity() {
             message: String?,
             result: JsResult?
         ): Boolean {
-            AlertDialog.Builder(this@NewWebActivity)
-                .setTitle("알림") // ✅ 앱 이름으로 변경
-                .setMessage(message)
-                .setPositiveButton(android.R.string.ok) { dialog: DialogInterface, which: Int -> 
-            result?.confirm()
-                }  
-                .setCancelable(false)
-                .show()
-            return true // ✅ 기본 alert 처리 완료
+            MaterialAlertDialogBuilder(this@NewWebActivity)
+            .setTitle("알림")  // 다이얼로그 제목
+            .setMessage(message)  // 메시지
+            .setPositiveButton(android.R.string.ok) { dialog, which ->
+                result?.confirm()  // "OK" 버튼 클릭 시 확인
+            }
+            .setCancelable(false)  // 다이얼로그를 취소 불가로 설정
+            .show()  // 다이얼로그 표시
+        return true  // 기본 alert 처리 완료
         }
     }
 
