@@ -4,20 +4,29 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
   build:
     name: Build Android App
     runs-on: ubuntu-latest
-    # except.txt 변경 시 빌드를 건너뛰도록 설정
-    if: ${{ !contains(github.event.head_commit.message, 'Update except.txt') }}
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      # ✅ Keystore 자동 생성
+      - name: Generate Keystore
+        run: |
+          keytool -genkeypair -v \
+            -keystore keystore.jks \
+            -storepass ${{ secrets.KEYSTORE_PASSWORD }} \
+            -keypass ${{ secrets.KEY_PASSWORD }} \
+            -alias ${{ secrets.KEY_ALIAS }} \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -dname "CN=Example, OU=Org, O=Company, L=City, ST=State, C=US"
+          
+          base64 keystore.jks > keystore.jks.base64
+          echo "Keystore generated and encoded."
 
       # ✅ Gradle 캐시 사용 (속도 개선)
       - name: Cache Gradle dependencies
@@ -26,24 +35,20 @@ jobs:
            path: ~/.gradle/caches
            key: gradle-${{ runner.os }}-dependencies
            restore-keys: gradle-${{ runner.os }}-
-    
+
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      # ✅ Gradle Wrapper가 없으면 생성
-      - name: Generate Gradle Wrapper if missing
-        run: |
-          if [ ! -f gradlew ]; then
-            echo "Gradle Wrapper not found, generating it..."
-            gradle wrapper
-          fi
-
-      # ✅ Gradle 실행 전 캐시를 활용하도록 설정
+      # ✅ Gradle 실행
       - name: Build with Gradle (Debug & Release)
         run: ./gradlew assembleDebug assembleRelease --parallel --build-cache
+
+      # ✅ APK 빌드 후 결과 확인
+      - name: Verify APK Output
+        run: ls -al app/build/outputs/apk/release/
 
       # ✅ Debug APK 업로드
       - name: Upload Debug APK
