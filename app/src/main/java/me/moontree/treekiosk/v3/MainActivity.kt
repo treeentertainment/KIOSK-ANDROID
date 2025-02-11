@@ -145,26 +145,27 @@ class MainActivity : AppCompatActivity(), MessageListener {
                     val errorMessage = e.message ?: "Unknown error"
                     runOnUiThread {
                         webView.evaluateJavascript("onLoginFailure('<span class="math-inline">errorMessage'\)", null\)
-\}
-\}
-\}
-\}
+}
+}
+}
+}
 @JavascriptInterface
-fun checkAuthState\(\) \{
-lifecycleScope\.launch \{
-try \{
-val user \= AppwriteManager\.account\.get\(\)
-runOnUiThread \{
-webView\.evaluateJavascript\("onLoginSuccess\('</span>{user.email}')", null)
-                    }
-                } catch (e: Exception) {
-                    runOnUiThread {
-                        webView.evaluateJavascript("onLoginFailure('noid')", null)
-                    }
-                }
+fun checkAuthState() {
+    lifecycleScope.launch {
+        try {
+            val user = AppwriteManager.account.get()
+            val email = user.email.replace("'", "\\'") // JavaScript 문자열 안전 처리
+
+            runOnUiThread {
+                webView.evaluateJavascript("onLoginSuccess('$email')", null)
+            }
+        } catch (e: Exception) {
+            runOnUiThread {
+                webView.evaluateJavascript("onLoginFailure('noid')", null)
             }
         }
-
+    }
+}
         @JavascriptInterface
         fun logout() {
             lifecycleScope.launch {
