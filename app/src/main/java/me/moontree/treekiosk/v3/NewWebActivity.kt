@@ -80,13 +80,16 @@ class NewWebActivity : AppCompatActivity() {
 
     
     inner class WebAppInterface {        
-      @JavascriptInterface
-fun sendMessage(message: String) {
-    val intent = Intent(this@NewWebActivity, MainActivity::class.java)
-    intent.putExtra("message", message)
-    startActivity(intent)
-    finish() 
-}
+     @JavascriptInterface
+     fun sendMessage(message: String) {
+     val intent = Intent(this@NewWebActivity, MainActivity::class.java).apply {
+        putExtra("message", message)
+        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+     }
+     startActivity(intent)
+     finish()
+    }
+
 
         
         @JavascriptInterface
