@@ -95,25 +95,6 @@ webView.webChromeClient = object : WebChromeClient() {
         webView.addJavascriptInterface(WebAppInterface(), "AndroidApp")
     }
 
-            @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        handleIntent(intent);
-    }
-
-    private void handleIntent(Intent intent) {
-        if (intent != null && intent.hasExtra("webMessage")) {
-            String message = intent.getStringExtra("webMessage");
-            Log.d("MainActivity", "Received message from NewActivity: " + message);
-            
-            // WebView1로 메시지 전달
-            sendMessageToWebView(webView1, message);
-        }
-    }
-
-    private void sendMessageToWebView(WebView webView, String message) {
-        webView.evaluateJavascript("receiveMessage('" + message + "')", null);
-    }
 
     inner class WebAppInterface {
         
