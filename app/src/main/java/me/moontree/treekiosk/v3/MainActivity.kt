@@ -88,7 +88,7 @@ class MainActivity : AppCompatActivity() {
 
     // JavaScript alert() 커스텀 처리
     override fun onJsAlert(view: WebView?, url: String?, message: String?, result: JsResult?): Boolean {
-    MaterialAlertDialogBuilder(this@NewWebActivity)
+    MaterialAlertDialogBuilder(this@MainActivity)
             .setTitle("알림")  // 다이얼로그 제목
             .setMessage(message)  // 메시지
             .setPositiveButton(android.R.string.ok) { dialog, which ->
