@@ -300,6 +300,8 @@ webView\.evaluateJavascript\("onLoginSuccess\('</span>{user.email}')", null)
     }
 
     override fun onMessageReceived(message: String) {
-        webView.evaluateJavascript("messagenew('$message')", null)
-    }
+    val safeMessage = message.replace("'", "\\'")
+    webView.evaluateJavascript("messagenew('$safeMessage')", null)
+}
+
 }
