@@ -81,11 +81,12 @@ class NewWebActivity : AppCompatActivity() {
     
     inner class WebAppInterface {        
       @JavascriptInterface
-        public void sendMessage(String message) {
-            Intent intent = new Intent(NewActivity.this, MainActivity.class);
-            intent.putExtra("message", message);
-            startActivity(intent);
-        }
+fun sendMessage(message: String) {
+    val intent = Intent(this@NewWebActivity, MainActivity::class.java)
+    intent.putExtra("message", message)
+    startActivity(intent)
+}
+
         
         @JavascriptInterface
         fun googleLogin() {
