@@ -80,6 +80,17 @@ class NewWebActivity : AppCompatActivity() {
     
     inner class WebAppInterface {
         @JavascriptInterface
+        public void sendMessageToMain(String message) {
+            Log.d("NewActivity", "Sending message to MainActivity: " + message);
+            
+            // 메시지를 MainActivity로 전달
+            Intent intent = new Intent(NewActivity.this, MainActivity.class);
+            intent.putExtra("webMessage", message);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+        }
+        
+        @JavascriptInterface
         fun googleLogin() {
             lifecycleScope.launch {
                 try {
