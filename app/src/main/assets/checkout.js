@@ -104,7 +104,7 @@ function finishsend() {
    clearDisplay();
    localStorage.removeItem("order");
    alert("주문이 완료되었습니다.");
-   window.opener.postMessage("home", window.location.origin);
+   window.AndroidApp.sendMessage("home");
    window.AndroidApp.closeWindow();
 }
 
