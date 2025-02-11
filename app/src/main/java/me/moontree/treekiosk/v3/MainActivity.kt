@@ -14,7 +14,6 @@ import android.webkit.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import io.appwrite.Client
 import io.appwrite.ID
 import io.appwrite.enums.OAuthProvider
 import io.appwrite.services.Account
@@ -24,13 +23,13 @@ import kotlinx.coroutines.launch
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), MessageListener {
 
     private lateinit var webView: WebView
     private lateinit var client: Client
     private lateinit var account: Account
     private lateinit var database: Databases
-    private val messageReceiver = MessageReceiver(this) // MainActivity 인스턴스 전달
+    private val messageReceiver = MessageReceiver(this)
 
     interface MessageListener {
         fun onMessageReceived(message: String)
@@ -128,53 +127,39 @@ class MainActivity : AppCompatActivity() {
             runOnUiThread { finish() }
         }
 
-              @JavascriptInterface
+        @JavascriptInterface
         fun googleLogin() {
             lifecycleScope.launch {
                 try {
-                    Log.d("Appwrite", "Starting Google OAuth login...")
-
                     AppwriteManager.account.createOAuth2Session(
-                        activity = this@NewWebActivity,
+                        activity = this@MainActivity,
                         provider = OAuthProvider.GOOGLE
                     )
 
-                    // ✅ 로그인 성공 후, 사용자 정보 가져오기
                     val user = AppwriteManager.account.get()
-                    Log.d("Appwrite", "User logged in: ${user.email}")
-
                     runOnUiThread {
                         webView.evaluateJavascript("onLoginSuccess('${user.email}')", null)
                     }
 
                 } catch (e: Exception) {
                     val errorMessage = e.message ?: "Unknown error"
-                    Log.e("Appwrite", "OAuth login failed: $errorMessage")
-
                     runOnUiThread {
-                        webView.evaluateJavascript("onLoginFailure('$errorMessage')", null)
-                    }
-                }
-            }
-        }
-
-        @JavascriptInterface
-        fun checkAuthState() {
-            lifecycleScope.launch {
-                try {
-                    Log.d("Appwrite", "Checking auth state...")
-
-                    val user = AppwriteManager.account.get()
-                    Log.d("Appwrite", "User is logged in: ${user.email}")
-
-                    runOnUiThread {
-                        webView.evaluateJavascript("onLoginSuccess('${user.email}')", null)
+                        webView.evaluateJavascript("onLoginFailure('<span class="math-inline">errorMessage'\)", null\)
+\}
+\}
+\}
+\}
+@JavascriptInterface
+fun checkAuthState\(\) \{
+lifecycleScope\.launch \{
+try \{
+val user \= AppwriteManager\.account\.get\(\)
+runOnUiThread \{
+webView\.evaluateJavascript\("onLoginSuccess\('</span>{user.email}')", null)
                     }
                 } catch (e: Exception) {
-                    Log.d("Appwrite", "User not logged in.")
-
                     runOnUiThread {
-                        webView.evaluateJavascript("onLoginFailure('Not logged in')", null)
+                        webView.evaluateJavascript("onLoginFailure('noid')", null)
                     }
                 }
             }
@@ -184,24 +169,19 @@ class MainActivity : AppCompatActivity() {
         fun logout() {
             lifecycleScope.launch {
                 try {
-                    Log.d("Appwrite", "Logging out...")
-
                     AppwriteManager.account.deleteSession("current")
-
-                    Log.d("Appwrite", "User logged out successfully.")
-
                     runOnUiThread {
                         webView.evaluateJavascript("onLogoutSuccess()", null)
                     }
                 } catch (e: Exception) {
-                    Log.e("Appwrite", "Logout error: ${e.message}")
-
+                    val errorMessage = e.message ?: "Unknown error"
                     runOnUiThread {
-                        webView.evaluateJavascript("console.log('LogoutError: ${e.message}')", null)
+                        webView.evaluateJavascript("onLoginFailure('$errorMessage')", null)
                     }
                 }
             }
         }
+
         @JavascriptInterface
         fun submitOrder(phoneNumber: String, email: String, shop: String, orderJson: String) {
             lifecycleScope.launch {
@@ -226,7 +206,7 @@ class MainActivity : AppCompatActivity() {
                         "order" to orderJson
                     )
 
-                    val validDocumentId = ID.unique() // ID.unique() 사용
+                    val validDocumentId = ID.unique()
 
                     AppwriteManager.database.createDocument(
                         databaseId = "tree-kiosk",
@@ -248,10 +228,9 @@ class MainActivity : AppCompatActivity() {
                     }
 
                 } catch (e: Exception) {
-                    Log.e("Appwrite", "주문 제출 오류: ${e.message}")
-
+                    val errorMessage = e.message ?: "Unknown error"
                     runOnUiThread {
-                        webView.evaluateJavascript("errorsend('주문 제출 실패: ${e.message}')", null)
+                        webView.evaluateJavascript("errorsend('주문 제출 실패: $errorMessage')", null)
                     }
                 }
             }
@@ -289,8 +268,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private suspend fun getUserDocument(email: String): Pair<Boolean, String?> {
-        Pair<Boolean, String?> {
-        return try {
+        try {
             val response = AppwriteManager.database.listDocuments(
                 databaseId = "tree-kiosk",
                 collectionId = "owner",
@@ -300,25 +278,24 @@ class MainActivity : AppCompatActivity() {
             if (response.documents.isNotEmpty()) {
                 val document = response.documents.first()
                 val name = document.data["name"] as? String ?: "Unknown"
-                Pair(true, name)
+                return Pair(true, name)
             } else {
-                Pair(false, null)
+                return Pair(false, null)
             }
         } catch (e: Exception) {
             Log.e("Appwrite", "사용자 데이터를 가져오는 중 오류 발생: ${e.message}")
-            Pair(false, null)
+            return Pair(false, null)
         }
     }
 
     private fun readJsonFromAssets(): String {
-        return try {
+        try {
             val inputStream = assets.open("image/file.json")
             val reader = BufferedReader(InputStreamReader(inputStream))
-            val jsonString = reader.use { it.readText() }
-            jsonString
+            return reader.use { it.readText() }
         } catch (e: Exception) {
             e.printStackTrace()
-            "{}" // 에러 발생 시 빈 JSON 반환
+            return "{}"
         }
     }
 
