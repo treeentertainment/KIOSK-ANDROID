@@ -19,29 +19,37 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      # ✅ Gradle 캐시 사용 (속도 개선)
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/caches
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: gradle-${{ runner.os }}-
+
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Install Gradle
-        uses: gradle/actions/setup-gradle@v4
+      # ✅ Gradle 실행 전 캐시를 활용하도록 설정
+      - name: Build with Gradle (Debug & Release)
+        run: ./gradlew assembleDebug assembleRelease --parallel --build-cache
 
-      - name: Generate Gradle Wrapper (if missing)
-        run: gradle wrapper || ./gradlew wrapper
-
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew || chmod +x ./gradlew
-
-      - name: Build with Gradle
-        run: ./gradlew assembleDebug
-
-      - name: Upload APK
+      # ✅ Debug APK 업로드
+      - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-apk
+          name: app-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
+
+      # ✅ Release APK 업로드
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-apk
+          path: app/build/outputs/apk/release/app-release.apk
 
   update_except_txt:
     name: Update except.txt with current run ID
@@ -52,7 +60,6 @@ jobs:
 
       - name: Modify except.txt with current run ID
         run: |
-          # except.txt 파일에 현재 실행 ID 추가
           echo "${{ github.run_id }}" >> except.txt
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
