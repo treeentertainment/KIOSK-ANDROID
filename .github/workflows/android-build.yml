@@ -23,10 +23,10 @@ jobs:
       - name: Cache Gradle dependencies
         uses: actions/cache@v4
         with:
-          path: ~/.gradle/caches
-          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: gradle-${{ runner.os }}-
-
+           path: ~/.gradle/caches
+           key: gradle-${{ runner.os }}-dependencies
+           restore-keys: gradle-${{ runner.os }}-
+    
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
