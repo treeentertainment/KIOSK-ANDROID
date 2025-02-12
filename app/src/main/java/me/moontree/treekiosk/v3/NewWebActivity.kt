@@ -85,7 +85,7 @@ webView.webChromeClient = object : WebChromeClient() {
 fun sendMessage(message: String) {
     val intent = Intent(this@NewWebActivity, MainActivity::class.java)
     intent.putExtra("message", message)
-    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
     startActivity(intent)
     finish() // 현재 액티비티 종료
 }
