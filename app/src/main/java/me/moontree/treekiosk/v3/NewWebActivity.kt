@@ -81,13 +81,14 @@ webView.webChromeClient = object : WebChromeClient() {
 
     
     inner class WebAppInterface {        
-   @JavascriptInterface
-   fun sendMessage(message: String) {
+@JavascriptInterface
+fun sendMessage(message: String) {
     val intent = Intent(this@NewWebActivity, MainActivity::class.java)
     intent.putExtra("message", message)
+    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
     startActivity(intent)
     finish() // 현재 액티비티 종료
-   }
+}
 
 
 
