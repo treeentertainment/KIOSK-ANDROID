@@ -37,7 +37,6 @@ class MainActivity : AppCompatActivity() {
         AppwriteManager.initialize(this)
         
         webView.loadUrl("file:///android_asset/index.html")
-        
     }
     
     private fun sendToWebView(webView: WebView, message: String) {
@@ -249,6 +248,7 @@ class MainActivity : AppCompatActivity() {
                 val (exists, name) = getUserDocument(email)
                 runOnUiThread {
                     webView.evaluateJavascript("onUserExists($exists, '$email', '$name');", null)
+                    webView.evaluateJavascript("alert('MainActivity');", null)
                 }
             }
         }
