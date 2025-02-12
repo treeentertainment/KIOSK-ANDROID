@@ -20,6 +20,8 @@ import androidx.appcompat.app.AlertDialog
 import io.appwrite.ID
 import android.webkit.JavascriptInterface
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import android.os.Handler
+import android.os.Looper
 
 class NewWebActivity : AppCompatActivity() {
 
