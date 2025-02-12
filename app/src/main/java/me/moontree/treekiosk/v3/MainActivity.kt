@@ -248,7 +248,6 @@ class MainActivity : AppCompatActivity() {
                 val (exists, name) = getUserDocument(email)
                 runOnUiThread {
                     webView.evaluateJavascript("onUserExists($exists, '$email', '$name');", null)
-                    webView.evaluateJavascript("alert('MainActivity');", null)
                 }
             }
         }
