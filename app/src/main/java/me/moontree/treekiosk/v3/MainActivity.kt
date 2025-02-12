@@ -43,6 +43,13 @@ class MainActivity : AppCompatActivity() {
     webView.evaluateJavascript("onmessage('$message')", null)
     }
 
+    private val newWebActivityLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val message = result.data?.getStringExtra("message")
+                message?.let { sendToWebView(webView, it) }
+            }
+        }
     private fun setupWebView(webView: WebView) {
         webView.settings.apply {
             javaScriptEnabled = true
