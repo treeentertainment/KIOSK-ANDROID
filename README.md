@@ -16,7 +16,7 @@
 
 > ## 설치 방법
 
-1. [다운로드](https://github.com/treeentertainment/KIOSK-ANDROID/releases)
+1. [다운로드](https://github.com/treeentertainment/KIOSK-ANDROID/releases/latest)
 
 2. 설치
 
