@@ -271,7 +271,7 @@ class MainActivity : AppCompatActivity() {
         fun openNewTab(url: String) {
             val intent = Intent(this@MainActivity, NewWebActivity::class.java)
             intent.putExtra("url", url)
-            startActivity(intent)
+            newWebActivityLauncher.launch(intent)
         }
     }
 
