@@ -19,9 +19,8 @@ import android.content.Intent
 import android.content.DialogInterface
 import androidx.appcompat.app.AlertDialog
 import android.app.Activity
-import androidx.activity.result.ActivityResultContracts
 import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import androidx.activity.result.contract.ActivityResultContracts
 
 class MainActivity : AppCompatActivity() {
 
