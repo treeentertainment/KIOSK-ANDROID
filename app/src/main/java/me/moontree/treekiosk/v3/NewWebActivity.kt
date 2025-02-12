@@ -87,8 +87,12 @@ webView.webChromeClient = object : WebChromeClient() {
        fun sendMessage(message: String) {
           val intent = Intent(this@NewWebActivity, MainActivity::class.java)      
           intent.putExtra("message", message)
-          intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-          startActivity(intent)
+         if (message == "home") {
+            setResult(Activity.RESULT_OK, intent)
+            finish() // "home"일 때만 액티비티 종료
+         } else {
+        setResult(Activity.RESULT_OK, intent)
+      }
        }
 
 
