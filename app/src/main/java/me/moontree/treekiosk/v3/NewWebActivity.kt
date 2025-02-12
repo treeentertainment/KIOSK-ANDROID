@@ -248,12 +248,6 @@ fun submitOrder(phoneNumber: String, email: String, shop: String, orderJson: Str
         fun getJson(): String {
             return readJsonFromAssets()
         }
-          @JavascriptInterface
-      fun closeWindow() {
-        runOnUiThread {
-            finish() // ✅ 현재 액티비티 종료
-        }
-    }
     }
 
     private suspend fun getUserDocument(email: String): Pair<Boolean, String?> {
