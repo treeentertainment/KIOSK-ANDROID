@@ -33,9 +33,11 @@ class MainActivity : AppCompatActivity() {
 
         webView = findViewById(R.id.webView)
         setupWebView(webView)
-
-        webView.loadUrl("file:///android_asset/index.html")
+        
         AppwriteManager.initialize(this)
+        
+        webView.loadUrl("file:///android_asset/index.html")
+        
     }
     
     private fun sendToWebView(webView: WebView, message: String) {
