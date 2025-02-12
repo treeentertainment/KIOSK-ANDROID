@@ -86,10 +86,10 @@ webView.webChromeClient = object : WebChromeClient() {
     inner class WebAppInterface {        
       @JavascriptInterface
 fun sendMessage(message: String) {
-    val intent = Intent(this@NewWebActivity, MainActivity::class.java)
+    val intent = Intent()
     intent.putExtra("message", message)
     setResult(Activity.RESULT_OK, intent)
-    finish() // 항상 액티비티를 종료해서 결과를 반환하도록 수정
+    finish() // 액티비티 종료 후 결과 반환
 }
 
 
