@@ -92,19 +92,18 @@
             if (exists === false) {
                 window.location.href = "index.html";
              }
-        }
+         }
 
 window.addEventListener('load', function() {
-    
     window.AndroidApp.checkUserDocument(localStorage.getItem('email'));
 });
-
 
 function finishsend() {
    clearDisplay();
    localStorage.removeItem("order");
    alert("주문이 완료되었습니다.");
-   window.AndroidApp.sendMessage("home");
+   window.AndroidApp.closeWindow();
+   window.AndroidApp.sendMessage("home");   
 }
 
 function errorsend(message) {
