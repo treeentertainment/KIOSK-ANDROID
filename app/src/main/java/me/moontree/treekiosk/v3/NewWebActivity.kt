@@ -22,6 +22,7 @@ import android.webkit.JavascriptInterface
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import android.os.Handler
 import android.os.Looper
+import android.app.Activity
 
 class NewWebActivity : AppCompatActivity() {
 
