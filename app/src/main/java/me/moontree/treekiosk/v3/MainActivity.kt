@@ -48,12 +48,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val newWebActivityLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val message = result.data?.getStringExtra("message")
-                message?.let { sendToWebView(webView, it) }
-            }
+    registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.getStringExtra("message")?.let { sendToWebView(webView, it) }
         }
+    }
+
     private fun setupWebView(webView: WebView) {
         webView.settings.apply {
             javaScriptEnabled = true
