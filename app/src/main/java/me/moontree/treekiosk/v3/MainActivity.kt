@@ -25,7 +25,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var client: Client
     private lateinit var account: Account
     private lateinit var database: Databases
-    private val START_NEW_WEB_ACTIVITY_REQUEST = 1 // Request code
     
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,25 +36,8 @@ class MainActivity : AppCompatActivity() {
 
         webView.loadUrl("file:///android_asset/index.html")
         AppwriteManager.initialize(this)
-
-       val intent = Intent(this, NewWebActivity::class.java)
-        startActivityForResult(intent, START_NEW_WEB_ACTIVITY_REQUEST) // Use startActivityForResult
     }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-    super.onActivityResult(requestCode, resultCode, data)
-
-    if (requestCode == START_NEW_WEB_ACTIVITY_REQUEST) {
-        if (resultCode == RESULT_OK) {
-            val message = data?.getStringExtra("message")
-            // Use the message received from NewWebActivity
-            if (message != null) {
-                Log.d("MainActivity", "Message from NewWebActivity: $message")
-                sendToWebView(webView, message)
-            }
-        }
-    }
-    }
+    
     private fun sendToWebView(webView: WebView, message: String) {
     webView.evaluateJavascript("onmessage('$message')", null)
     }
