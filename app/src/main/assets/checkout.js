@@ -1,7 +1,11 @@
             const li = document.getElementById("check");
-            let order = JSON.parse(localStorage.getItem('order')) || [];
-            
+
+            function getOrder() {
+            return JSON.parse(localStorage.getItem('order')) || [];
+            }
+
             function renderCheckout() {
+                let order = getOrder();
                 li.innerHTML = '';
                 if (order.length === 0) {
                     li.innerHTML = `<li class="list-group-item d-flex justify-content-between align-items-center">
@@ -54,7 +58,7 @@
             }
 
             async function submit() {
-            const orderData = JSON.stringify(localStorage.getItem('order'));
+            const orderData = getOrder();
              var shop = localStorage.getItem('name')?.replace(/"/g, '');
               const email = localStorage.getItem('email');
               const phoneNumber = document.getElementById('numberDisplay').value; 
