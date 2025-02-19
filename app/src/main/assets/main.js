@@ -193,13 +193,13 @@ function addItemToOrder({ id, image, description, price, quantity }) {
     } else {
         order.push({ id, image, description, quantity, price });
     }
-    saveOrder();
+    saveOrder(order);
 }
 
-function saveOrder() {
-    let order = getOrder();
+function saveOrder(order) {
     localStorage.setItem('order', JSON.stringify(order));
 }
+
 // 아이템 인덱스 찾기
 function getItemIndex(description) {
     let order = getOrder();
@@ -208,17 +208,16 @@ function getItemIndex(description) {
 
 function onLoginFailure(message) {
  window.location.href = "index.html";
-
 }
 
 
-        function onUserExists(exists, email, name) {
-            localStorage.setItem("name", name);
-            localStorage.setItem("email", email);
-            if (exists === false) {
-                window.location.href = "index.html";
-             }
-        }
+function onUserExists(exists, email, name) {
+ localStorage.setItem("name", name);
+ localStorage.setItem("email", email);
+  if (exists === false) {
+     window.location.href = "index.html";
+  }
+}
 
 window.addEventListener('load', function() {
     
