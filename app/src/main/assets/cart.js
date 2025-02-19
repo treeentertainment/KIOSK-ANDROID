@@ -1,5 +1,8 @@
 const cart = document.getElementById("cart-list");
-let order = JSON.parse(localStorage.getItem('order')) || []; // Load from localStorage or initialize
+
+function getOrder() {
+    return JSON.parse(localStorage.getItem('order')) || [];
+}
 
 const cartshow = debounce(function () {
     renderCart();
@@ -8,6 +11,7 @@ const cartshow = debounce(function () {
 window.addEventListener('load', cartshow);
 
 function renderCart() {
+    let order = getOrder();
     cart.innerHTML = order.length === 0 ? `
         <li class="list-group-item d-flex justify-content-between align-items-center">
             <div>장바구니가 비어있습니다.</div>
@@ -41,10 +45,12 @@ function updateItemQuantity(description, newQuantity) {
 }
 
 function saveOrder() {
+    let order = getOrder();
     localStorage.setItem('order', JSON.stringify(order));
 }
 
 function deleteItem(index) {
+    let order = getOrder();
     order.splice(index, 1);
     saveOrder(); // Save order to localStorage after deletion
     cartshow();
@@ -52,6 +58,7 @@ function deleteItem(index) {
 }
 
 function addItemToOrder({ id, image, description, price, quantity }) {
+    let order = getOrder();
     const existingIndex = getItemIndex(description);
     if (existingIndex !== -1) {
         order[existingIndex].quantity += quantity;
@@ -63,6 +70,7 @@ function addItemToOrder({ id, image, description, price, quantity }) {
 }
 
 function getItemIndex(description) {
+    let order = getOrder();
     return order.findIndex(item => item.description === description);
 }
 
