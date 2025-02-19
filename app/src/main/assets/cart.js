@@ -44,17 +44,15 @@ function updateItemQuantity(description, newQuantity) {
     }
 }
 
-function saveOrder() {
-    let order = getOrder();
+function saveOrder(order) {
     localStorage.setItem('order', JSON.stringify(order));
 }
 
 function deleteItem(index) {
     let order = getOrder();
     order.splice(index, 1);
-    saveOrder(); // Save order to localStorage after deletion
-    cartshow();
-    console.log('Deleted Item:', order); // Debugging: Log current order
+    saveOrder(order); // Save order to localStorage after deletion
+    renderCart();
 }
 
 function addItemToOrder({ id, image, description, price, quantity }) {
@@ -66,7 +64,7 @@ function addItemToOrder({ id, image, description, price, quantity }) {
     } else {
         order.push({ id, image, description, quantity, price });
     }
-   saveOrder(); 
+   saveOrder(order); 
 }
 
 function getItemIndex(description) {
@@ -87,18 +85,16 @@ function debounce(func, wait) {
 }
   
   function onLoginFailure(message) {
-    
-      window.location.href = "index.html";
-
+    window.location.href = "index.html";
   }
 
-     function onUserExists(exists, email, name) {
-            localStorage.setItem("name", name);
-            localStorage.setItem("email", email);
-            if (exists === false) {
-                window.location.href = "index.html";
-             }
-        }
+  function onUserExists(exists, email, name) {
+       localStorage.setItem("name", name);
+       localStorage.setItem("email", email);
+      if (exists === false) {
+         window.location.href = "index.html";
+    }
+  }
 
 window.addEventListener('load', function() {   
     window.AndroidApp.checkUserDocument(localStorage.getItem('email'));
