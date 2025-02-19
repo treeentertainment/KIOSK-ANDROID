@@ -4,9 +4,6 @@ const form = document.getElementById("select");
 const ul = document.getElementById("list");
 const myModalEl = document.getElementById('staticBackdrop');
 const myModal = new bootstrap.Modal(myModalEl, { keyboard: false }); 
-
-let order = JSON.parse(localStorage.getItem('order')) || []; // Load from localStorage or initialize
-
 // 초기화 함수
 window.addEventListener('load', init);
 
@@ -17,6 +14,9 @@ function init() {
     }
 }
 
+function getOrder() {
+    return JSON.parse(localStorage.getItem('order')) || [];
+}
 
 function openWindow(name) {
 
@@ -186,7 +186,7 @@ function resetForm(event) {
 // 주문 항목 추가
 function addItemToOrder({ id, image, description, price, quantity }) {
     const existingIndex = getItemIndex(description);
-
+    let order = getOrder();
     if (existingIndex !== -1) {
         order[existingIndex].quantity += quantity;
         order[existingIndex].price += quantity * (price / quantity);
@@ -197,10 +197,12 @@ function addItemToOrder({ id, image, description, price, quantity }) {
 }
 
 function saveOrder() {
+    let order = getOrder();
     localStorage.setItem('order', JSON.stringify(order));
 }
 // 아이템 인덱스 찾기
 function getItemIndex(description) {
+    let order = getOrder();
     return order.findIndex(item => item.description.trim() === description.trim());
 }
 
