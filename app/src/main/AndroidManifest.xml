@@ -6,8 +6,8 @@
     <application
         android:label="@string/app_name"
         android:allowBackup="true"
-        android:icon="@mipmap/logo"
-        android:roundIcon="@mipmap/logo"
+        android:icon="@mipmap/logo500"
+        android:roundIcon="@mipmap/logo500"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         android:usesCleartextTraffic="true">
         <activity android:name=".NewWebActivity"
