@@ -1,9 +1,11 @@
+
 name: Android Build
 
 on:
   push:
     branches:
       - main
+      - dev
 
 jobs:
   build:
@@ -14,7 +16,22 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # ✅ Keystore 자동 생성
+      # ✅ Gradle Wrapper 체크 및 자동 푸시
+      - name: Check and Generate Gradle Wrapper if missing
+        run: |
+          if [ ! -f gradlew ]; then
+            echo "Gradle Wrapper not found, generating it..."
+            gradle wrapper
+            chmod +x gradlew
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            git add gradlew gradlew.bat gradle/wrapper/
+            git commit -m "Auto-generate Gradle Wrapper"
+            git push origin main
+          else
+            echo "Gradle Wrapper already exists."
+          fi
+
       - name: Generate Keystore
         run: |
           keytool -genkeypair -v \
@@ -33,44 +50,44 @@ jobs:
           echo "KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}" >> $GITHUB_ENV
           echo "KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> $GITHUB_ENV
           echo "KEY_ALIAS=${{ secrets.KEY_ALIAS }}" >> $GITHUB_ENV
-
-      # ✅ Gradle 캐시 사용 (속도 개선)
-      - name: Cache Gradle dependencies
+          
+      # ✅ Gradle 캐시 최적화
+      - name: Cache Gradle dependencies and wrapper
         uses: actions/cache@v4
         with:
-           path: ~/.gradle/caches
-           key: gradle-${{ runner.os }}-dependencies
-           restore-keys: gradle-${{ runner.os }}-
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
 
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
+          distribution: 'zulu'
           java-version: '17'
-          
-      - name: Generate Gradle Wrapper if missing
-        run: |
-          if [ ! -f gradlew ]; then
-            echo "Gradle Wrapper not found, generating it..."
-            gradle wrapper
-          fi
-          chmod +x gradlew
-          
-      # ✅ Gradle 실행
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug
 
-      - name: Build Release APK
-        run: ./gradlew assembleRelease
-   
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
+      # ✅ Gradle 실행 최적화
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug --no-daemon --parallel --build-cache --configure-on-demand
+
       - name: Upload Debug APK as artifact
         uses: actions/upload-artifact@v4
         with:
-           name: android-debug-apk
-           path: app/build/outputs/apk/debug/app-debug.apk
+          name: android-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error  # 단일 파일 업로드 유지
+          
+      - name: Build Release APK
+        run: ./gradlew assembleRelease --no-daemon --parallel --build-cache --configure-on-demand
 
       - name: Upload Release APK as artifact
         uses: actions/upload-artifact@v4
         with:
-           name: android-release-apk
-           path: app/build/outputs/apk/release/app-release.apk
+          name: android-release-apk
+          path: app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error  # 단일 파일 업로드 유지
