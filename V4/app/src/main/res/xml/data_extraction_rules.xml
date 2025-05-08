@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
 <data-extraction-rules>
-    <!-- Exclude all packages from data extraction -->
     <exclude package="*" />
+    <include package="me.moonmoon.treekioskv4" />
 </data-extraction-rules>
