@@ -21,13 +21,15 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
         }
+        debug {
+            isMinifyEnabled = false
+        }
+        getByName("release") {
+            signingConfig = signingConfigs.getByName("release")
+        }
+     
     }
-
     signingConfigs {
         create("release") {
             storeFile = file("keystore.jks")
