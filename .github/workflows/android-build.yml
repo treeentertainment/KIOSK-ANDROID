@@ -1,4 +1,3 @@
-
 name: Android Build
 
 on:
@@ -16,8 +15,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # ✅ Gradle Wrapper 체크 및 자동 푸시
+      # ✅ Gradle Wrapper 체크 및 자동 푸시 (V4 기준)
       - name: Check and Generate Gradle Wrapper if missing
+        working-directory: V4
         run: |
           if [ ! -f gradlew ]; then
             echo "Gradle Wrapper not found, generating it..."
@@ -33,6 +33,7 @@ jobs:
           fi
 
       - name: Generate Keystore
+        working-directory: V4
         run: |
           keytool -genkeypair -v \
             -keystore app/keystore.jks \
@@ -50,8 +51,7 @@ jobs:
           echo "KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}" >> $GITHUB_ENV
           echo "KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> $GITHUB_ENV
           echo "KEY_ALIAS=${{ secrets.KEY_ALIAS }}" >> $GITHUB_ENV
-          
-      # ✅ Gradle 캐시 최적화
+
       - name: Cache Gradle dependencies and wrapper
         uses: actions/cache@v4
         with:
@@ -70,24 +70,27 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
+        with:
+          build-root-directory: V4
 
-      # ✅ Gradle 실행 최적화
       - name: Build Debug APK
+        working-directory: V4
         run: ./gradlew assembleDebug --no-daemon --parallel --build-cache --configure-on-demand
 
       - name: Upload Debug APK as artifact
         uses: actions/upload-artifact@v4
         with:
           name: android-debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error  # 단일 파일 업로드 유지
-          
+          path: V4/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+
       - name: Build Release APK
+        working-directory: V4
         run: ./gradlew assembleRelease --no-daemon --parallel --build-cache --configure-on-demand
 
       - name: Upload Release APK as artifact
         uses: actions/upload-artifact@v4
         with:
           name: android-release-apk
-          path: app/build/outputs/apk/release/app-release.apk
-          if-no-files-found: error  # 단일 파일 업로드 유지
+          path: V4/app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error
