@@ -14,10 +14,10 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }    
-    signingConfigs {       
+    }
+
+    signingConfigs {
         create("release") {
             storeFile = file("keystore.jks")
             storePassword = System.getenv("KEYSTORE_PASSWORD")
@@ -25,25 +25,30 @@ android {
             keyPassword = System.getenv("KEY_PASSWORD")
         }
     }
+
     buildTypes {
-        release {
-           isMinifyEnabled = false
-           signingConfig = signingConfigs.getByName("release")
-       }
-        debug {
+        getByName("release") {
             isMinifyEnabled = false
-        }     
+            signingConfig = signingConfigs.getByName("release")
+        }
+        getByName("debug") {
+            isMinifyEnabled = false
+        }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    composeOptions {
-       kotlinCompilerExtensionVersion = "1.5.4"
-    }
+
     kotlinOptions {
         jvmTarget = "11"
     }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.4"
+    }
+
     buildFeatures {
         compose = true
     }
