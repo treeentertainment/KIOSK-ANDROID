@@ -16,8 +16,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-    
+    }    
     signingConfigs {       
         create("release") {
             storeFile = file("keystore.jks")
@@ -26,18 +25,15 @@ android {
             keyPassword = System.getenv("KEY_PASSWORD")
         }
     }
-
     buildTypes {
         release {
            isMinifyEnabled = false
            signingConfig = signingConfigs.getByName("release")
        }
-
         debug {
             isMinifyEnabled = false
         }     
     }
-
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
