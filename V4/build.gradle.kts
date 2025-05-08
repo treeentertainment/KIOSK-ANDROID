@@ -1,32 +1,63 @@
-buildscript {
-    // gradle.properties에서 값 불러오기
-    val agpVersion = project.findProperty("agpVersion") as String? ?: "8.2.0"
-    val kotlinVersion = project.findProperty("kotlinVersion") as String? ?: "1.9.20"
-
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath("com.android.tools.build:gradle:$agpVersion")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
-    }
-}
-
 plugins {
-    // plugins 블록에서는 변수를 사용할 수 없으므로 직접 버전 명시
-    id("com.android.application") version "8.2.0" apply false
-    id("com.android.library") version "8.2.0" apply false
-    id("org.jetbrains.kotlin.android") version "1.9.20" apply false
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
+    id("com.google.gms.google-services")
 }
 
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
+android {
+    namespace = "me.moonmoon.treekioskv4"
+    compileSdk = 35
+
+    defaultConfig {
+        applicationId = "me.moonmoon.treekioskv4"
+        minSdk = 21
+        targetSdk = 35
+        versionCode = 1
+        versionName = "1.0"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+    kotlinOptions {
+        jvmTarget = "11"
+    }
+    buildFeatures {
+        compose = true
     }
 }
 
-tasks.register("clean", Delete::class) {
-    delete(rootProject.layout.buildDirectory)
+dependencies {
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation(platform("com.google.firebase:firebase-bom:31.0.2")) // Firebase BOM to manage versions automatically
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-database")
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.activity.compose)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.material3)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
 }
