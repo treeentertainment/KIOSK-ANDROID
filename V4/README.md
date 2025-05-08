@@ -4,7 +4,7 @@
 
 <img src="https://img.shields.io/badge/html5-E34F26?style=for-the-badge&logo=html5&logoColor=white">
 <img src="https://img.shields.io/badge/javascript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=white">
-<img src="https://img.shields.io/badge/css-1572B6?style=for-the-badge&logo=css&logoColor=white">
+<img src="https://img.shields.io/badge/css-663399?style=for-the-badge&logo=css&logoColor=white">
 <img src="https://img.shields.io/badge/firebase-DD2C00?style=for-the-badge&logo=firebase&logoColor=white">
 <img src="https://img.shields.io/badge/Githubactions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white">
 <img src="https://img.shields.io/badge/kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white">
