@@ -1,9 +1,3 @@
-// Root-level build.gradle.kts
-
-plugins {
-    // 플러그인은 여기에 작성하지 않음 (보통 module-level에 사용)
-}
-
 dependencyResolutionManagement {
     repositories {
         google()
