@@ -1,9 +1,15 @@
-buildscript {
+// Project-level build.gradle.kts
+
+pluginManagement {
     repositories {
         google()
         mavenCentral()
     }
-    dependencies {
-        classpath("com.android.tools.build:gradle:8.2.0")
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
     }
 }
