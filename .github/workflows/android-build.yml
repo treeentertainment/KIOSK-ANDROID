@@ -81,7 +81,7 @@ jobs:
 
       - name: Build Debug APK
         working-directory: V4
-        run: ./gradlew assembleDebug --no-daemon --parallel --build-cache --configure-on-demand --stacktrace --info
+        run: ./gradlew assembleDebug --no-daemon --parallel --build-cache --configure-on-demand
 
       - name: Upload Debug APK as artifact
         uses: actions/upload-artifact@v4
