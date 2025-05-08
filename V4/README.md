@@ -8,10 +8,6 @@
 <img src="https://img.shields.io/badge/Githubactions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white">
 <img src="https://img.shields.io/badge/kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white">
 
-> ## 방문 수
-
-[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Ftreeentertainment%2FKIOSK-ANDROID&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=%EB%B0%A9%EB%AC%B8%EC%9E%90+%EC%88%98&edge_flat=false)](https://hits.seeyoufarm.com)
-
 > ## 설치 방법
 
 1. [다운로드](https://github.com/treeentertainment/KIOSK-ANDROID/releases/latest)
@@ -33,7 +29,7 @@
 
 > ## 문의
 
-[mrq.develop@hotmail.com](mailto:mrq.develop@hotmail.com)
+[moonlight10529@gmail.com](mailto:moonlight10529@gmail.com)
 
 > ## URL
 
