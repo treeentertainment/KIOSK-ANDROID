@@ -32,6 +32,12 @@ jobs:
             echo "Gradle Wrapper already exists."
           fi
 
+      # ✅ google-services.json 복원
+      - name: Decode google-services.json
+        run: |
+          echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 -d > V4/app/google-services.json
+        # 복원 후 `V4/app/google-services.json` 위치에 배치
+
       - name: Generate Keystore
         working-directory: V4
         run: |
