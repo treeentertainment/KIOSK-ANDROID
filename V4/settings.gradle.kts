@@ -1,18 +1,11 @@
+// settings.gradle.kts
+
 pluginManagement {
     repositories {
         google()
-        gradlePluginPortal()
         mavenCentral()
     }
 }
 
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
-
-rootProject.name = "TREE KIOSK V4"
-include(":app")
+rootProject.name = "TREE KIOSK V4"  // Change to your project name
+include(":app")  // Include other modules if necessary
