@@ -1,11 +1,4 @@
-// Project-level build.gradle.kts
-
-pluginManagement {
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
+// project-level build.gradle.kts
 
 allprojects {
     repositories {
