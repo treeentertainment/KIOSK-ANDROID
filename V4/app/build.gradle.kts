@@ -1,79 +1,63 @@
-import org.gradle.api.JavaVersion // 올바른 JavaVersion 패키지 import
-
 plugins {
-    id("com.android.application")
-    id("kotlin-android")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
+    id("com.google.gms.google-services")
 }
 
 android {
-    namespace = "me.moontree.treekiosk.v3"
-    compileSdk = 34
+    namespace = "me.moonmoon.treekioskv4"
+    compileSdk = 35
 
     defaultConfig {
-        applicationId = "me.moontree.treekiosk.v3"
+        applicationId = "me.moonmoon.treekioskv4"
         minSdk = 21
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
-        }
-        debug {
-            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
-
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17 // 올바른 JavaVersion 참조
-        targetCompatibility = JavaVersion.VERSION_17 // 올바른 JavaVersion 참조
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
-
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = "11"
     }
-
-    signingConfigs {
-        create("release") {
-            storeFile = file("keystore.jks")
-            storePassword = System.getenv("KEYSTORE_PASSWORD")
-            keyAlias = System.getenv("KEY_ALIAS")
-            keyPassword = System.getenv("KEY_PASSWORD")
-        }
-    }
-
-    buildTypes {
-        getByName("release") {
-            signingConfig = signingConfigs.getByName("release")
-        }
-    }
-
-}
-
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17)) // 올바른 toolchain 설정
+    buildFeatures {
+        compose = true
     }
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.12.0")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-
-    implementation("io.appwrite:sdk-for-android:7.0.0")
-
-    implementation("androidx.fragment:fragment-ktx:1.6.2")
-    implementation("androidx.recyclerview:recyclerview:1.3.1")
-    implementation("com.google.android.material:material:1.12.0")
-
-    implementation("androidx.activity:activity-ktx:1.8.0")
-
-    implementation("androidx.viewpager2:viewpager2:1.1.0")
-    implementation("androidx.coordinatorlayout:coordinatorlayout:1.2.0")
-
-    implementation("com.squareup.okhttp3:okhttp:4.10.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation(platform("com.google.firebase:firebase-bom:31.0.2")) // Firebase BOM to manage versions automatically
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-database")
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.activity.compose)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.material3)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
 }
