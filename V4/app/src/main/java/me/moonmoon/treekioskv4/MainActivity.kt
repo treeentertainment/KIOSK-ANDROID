@@ -22,6 +22,8 @@ import android.view.ViewGroup
 import android.app.Activity
 import com.google.firebase.database.ServerValue
 import android.view.WindowManager // ✅ 이 줄을 추가
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.DatabaseError
 
 class MainActivity : AppCompatActivity() {
     private lateinit var webView: WebView
@@ -283,7 +285,7 @@ class MainActivity : AppCompatActivity() {
                                 val name = data?.get("name") as? String
 
                                 if (storedEmail == fixedEmail) {
-                                  val jsCode = """
+                                    val jsCode = """
                                         localStorage.setItem('email', JSON.stringify('$fixedEmail'));
                                         localStorage.setItem('name', JSON.stringify('$name'));
                                         localStorage.setItem('number', JSON.stringify('$store'));      
@@ -328,13 +330,13 @@ class MainActivity : AppCompatActivity() {
                     val adminData = adminSnapshot.value as? Map<*, *>
                     val enabled = adminData?.get("enabled") as? Boolean ?: false
 
-                    // store 값이 숫자든 문자열이든 받아올 수 있게 처리
                     val storeAny = adminData?.get("store")
                     val store = when (storeAny) {
                         is String -> storeAny
                         is Number -> storeAny.toInt().toString()
                         else -> null
                     }
+
                     if (enabled && store != null) {
                         val dataRef = FirebaseDatabase.getInstance().getReference("/people/data/$store")
                         dataRef.get().addOnSuccessListener { dataSnapshot ->
@@ -344,14 +346,101 @@ class MainActivity : AppCompatActivity() {
 
                             if (storedEmail == email) {
                                 val jsCode = """
-                                    localStorage.setItem('email', JSON.stringify('$email'));
-                                    localStorage.setItem('name', JSON.stringify('$name'));
-                                    localStorage.setItem('number', JSON.stringify('$store'));      
-                                    loginfinish();
-                                """.trimIndent()
+                            localStorage.setItem('email', JSON.stringify('$email'));
+                            localStorage.setItem('name', JSON.stringify('$name'));
+                            localStorage.setItem('number', JSON.stringify('$store'));
+                            loginfinish();
+                        """.trimIndent()
                                 activity.runOnUiThread {
                                     webView.evaluateJavascript(jsCode, null)
                                 }
+                                val stateRef = FirebaseDatabase.getInstance().getReference("/people/data/$store/state")
+                                stateRef.addValueEventListener(object : ValueEventListener {
+                                    override fun onDataChange(snapshot: DataSnapshot) {
+                                        val stateData = snapshot.getValue(StateData::class.java)
+
+                                        if (stateData != null) {
+                                            val stateValue = stateData.state.toInt()
+                                            val escapedMessage = stateData.reason.message.replace("'", "\\'")
+                                            val escapedImg = stateData.reason.img.replace("'", "\\'")
+                                            val moveable = stateValue != 2
+                                            Log.d("DEBUG", "state = ${stateData.state}, moveable = $moveable")
+
+                                            val js = StringBuilder()
+                                            js.append("""
+                                      (function() {
+                                       const currentPage = window.location.pathname.split('/').pop();
+                                     """.trimIndent())
+
+                                            // 2 이상이면 index.html로 리디렉션 (index가 아닐 때만)
+                                            if (stateValue >= 2) {
+                                                js.append("""
+                                         if (currentPage !== 'index.html') {
+                                          const basePath = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+                                         window.location.href = basePath + 'index.html';
+                                            return;
+                                        }
+                                      """.trimIndent())
+                                            }
+
+                                            // 1 이상이면 index.html에서 alert 띄움
+                                            if (stateValue >= 1) {
+                                                js.append("""
+                                        if (currentPage === 'index.html') {
+                                        """.trimIndent())
+
+                                                if (moveable) {
+                                                    js.append("""
+                                                document.getElementById('closeicon').style.display = 'block';
+                                                document.getElementById('closebutton').style.display = 'block';
+                                                window.moveable = true;
+                                            """.trimIndent())
+                                                } else {
+                                                    js.append("window.moveable = false;")
+                                                }
+
+                                                js.append("""
+                                            document.getElementById('modal-name').innerHTML = '$escapedMessage';
+                                            document.getElementById('alertbox').classList.add('active');
+                                        """.trimIndent())
+
+                                                if (stateData.reason.img != null && stateData.reason.img != "null" && stateData.reason.img.isNotEmpty()) {
+                                                    js.append("""
+                                                document.getElementById('modal-image').src = '$escapedImg';
+                                                document.getElementById('modal-image').style.display = 'block';
+                                            """.trimIndent())
+                                                }
+
+                                                js.append("}})();")
+                                            } else {
+                                                // state < 1
+                                                js.append("""
+                                            document.getElementById('alertbox').classList.remove('active');
+                                            show('startface', 'login-container');
+                                        """.trimIndent())
+                                            }
+
+                                            activity.runOnUiThread {
+                                                webView.evaluateJavascript(js.toString(), null)
+                                            }
+
+                                        } else {
+                                            val js = """
+                                       document.getElementById('alertbox').classList.remove('active');
+                                       show('startface', 'login-container');
+                                       """.trimIndent()
+
+                                            activity.runOnUiThread {
+                                                webView.evaluateJavascript(js, null)
+                                            }
+                                        }
+                                    }
+
+                                    override fun onCancelled(error: DatabaseError) {
+                                        // 데이터베이스 오류가 발생했을 때 처리
+                                        Log.e("Firebase", "StateListener error", error.toException())
+                                    }
+                                })
                             } else {
                                 auth.signOut()
                                 activity.runOnUiThread {
@@ -377,7 +466,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-    @JavascriptInterface
+
+        @JavascriptInterface
     fun signOut() {
         FirebaseAuth.getInstance().signOut()
         activity.runOnUiThread {
@@ -490,6 +580,17 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
+    data class StateData(
+        val state: Int = 0,
+        val reason: Reason = Reason()
+    )
+
+    data class Reason(
+        val message: String = "",
+        val img: String = ""
+    )
+
 
     override fun onDestroy() {
         webView.destroy()
