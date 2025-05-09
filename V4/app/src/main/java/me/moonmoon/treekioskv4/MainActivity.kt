@@ -396,7 +396,11 @@ class MainActivity : AppCompatActivity() {
                                                 window.moveable = true;
                                             """.trimIndent())
                                                 } else {
-                                                    js.append("window.moveable = false;")
+                                                    js.append("""
+                                                        window.moveable = false;
+                                                        document.getElementById('closeicon').style.display = 'none';
+                                                        document.getElementById('closebutton').style.display = 'none';
+                                                """.trimIndent())
                                                 }
 
                                                 js.append("""
