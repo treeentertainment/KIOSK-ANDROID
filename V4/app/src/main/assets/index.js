@@ -1,5 +1,4 @@
-
-  // AndroidBridge를 통해 로그인 요청
+ // AndroidBridge를 통해 로그인 요청
   function loginpassword() {
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
@@ -77,3 +76,11 @@
   }
     show('login-container', 'startface');
    }
+
+
+function closeModal() {
+    console.log(window.moveable);
+    if (window.moveable) {
+        document.getElementById("alertbox").classList.remove("active");
+    }
+}
