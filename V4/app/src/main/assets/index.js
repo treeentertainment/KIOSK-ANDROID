@@ -40,16 +40,17 @@
   // 로그아웃 처리
   async function logout() {
     try {
-      // Firebase 로그아웃은 Kotlin에서 수행되므로 여기선 로컬 저장소만 초기화
+      window.AndroidBridge.logOut();
+
       localStorage.clear();
       sessionStorage.clear();
       clickCount = 0;
+
       window.location.reload(); // 강제로 새로고침
     } catch (error) {
       console.error('Error during logout:', error);
     }
   }
-
   // 로그아웃 트리거 (5번 클릭 시)
   let clickCount = 0;
   document.getElementById('logout-link').addEventListener('click', async (e) => {
