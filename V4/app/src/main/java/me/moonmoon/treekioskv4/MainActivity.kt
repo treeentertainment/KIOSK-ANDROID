@@ -24,6 +24,13 @@ import com.google.firebase.database.ServerValue
 import android.view.WindowManager // ✅ 이 줄을 추가
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import android.os.Build
+import android.content.Intent
+import android.content.pm.ShortcutManager
+import android.content.pm.ShortcutInfo
+import android.graphics.drawable.Icon
+import android.content.Context
 
 class MainActivity : AppCompatActivity() {
     private lateinit var webView: WebView
@@ -35,6 +42,21 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val prefs = getSharedPreferences("prefs", MODE_PRIVATE)
+
+        // 현재 앱의 첫 설치 시간 가져오기
+        val packageInfo = packageManager.getPackageInfo(packageName, 0)
+        val currentInstallTime = packageInfo.firstInstallTime
+
+        // 저장된 첫 설치 시간과 비교
+        val savedInstallTime = prefs.getLong("last_install_time", -1)
+
+        if (savedInstallTime == -1L || currentInstallTime > savedInstallTime) {
+            addShortcut(this)
+            prefs.edit().putLong("last_install_time", currentInstallTime).apply()
+        }
+
         setContentView(R.layout.activity_main)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
@@ -111,10 +133,53 @@ class MainActivity : AppCompatActivity() {
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            webView.importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS
+            subWebView.importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS
+            window.decorView.importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS
+        }
+
+
         // 4. index.html 로딩
         webView.loadUrl("file:///android_asset/index.html")
     }
 
+    fun addShortcut(context: Context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // 정확하게 context를 통해 시스템 서비스 가져오기
+            val shortcutManager = context.getSystemService(ShortcutManager::class.java)
+
+            // null 체크 및 지원 여부 확인
+            if (shortcutManager != null && shortcutManager.isRequestPinShortcutSupported) {
+                val shortcut = ShortcutInfo.Builder(context, "TREE_KIOSK_SHORT")
+                    .setShortLabel("TREE KIOSK V4")
+                    .setIcon(Icon.createWithResource(context, R.mipmap.logo500))
+                    .setIntent(Intent(context, MainActivity::class.java).apply {
+                        action = Intent.ACTION_MAIN
+                    })
+                    .build()
+
+                shortcutManager.requestPinShortcut(shortcut, null)
+            }
+        } else {
+            // Android 7 이하에서는 기존  방식 사용
+            val shortcutIntent = Intent(context, MainActivity::class.java)
+            shortcutIntent.action = Intent.ACTION_MAIN
+
+            val addIntent = Intent()
+            addIntent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent)
+            addIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, "TREE KIOSK V4")
+            addIntent.putExtra(
+                Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
+                Intent.ShortcutIconResource.fromContext(context, R.mipmap.logo500)
+            )
+            addIntent.action = "com.android.launcher.action.INSTALL_SHORTCUT"
+            addIntent.putExtra("duplicate", false)
+
+            context.sendBroadcast(addIntent)
+        }
+    }
 
     class CommonWebChromeClient(
         private val activity: MainActivity,
@@ -146,6 +211,11 @@ class MainActivity : AppCompatActivity() {
                 builtInZoomControls = false   // 확대/축소 버튼 비활성화
                 displayZoomControls = false  // 줌 컨트롤 UI 숨기기
                 setSupportZoom(false)
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                newWebView.importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS
+                newWebView.importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS
             }
 
             newWebView.webViewClient = object : WebViewClient() {
@@ -231,12 +301,121 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+
     class WebAppInterface(
         private val activity: Activity,
         private val auth: FirebaseAuth,
         private val webView: WebView,
         private val commonWebChromeClient: MainActivity.CommonWebChromeClient
     ) {
+
+        private var stateListener: ValueEventListener? = null
+        private var stateRef: DatabaseReference? = null
+
+        private fun addStateListener(store: String) {
+            Log.d("StateListener", "Adding listener for store: $store")
+
+            stateRef = FirebaseDatabase.getInstance().getReference("/people/data/$store/state")
+
+            stateListener = object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    Log.d("StateListener", "Data snapshot received")
+
+                    val stateData = snapshot.getValue(StateData::class.java)
+
+                    if (stateData != null) {
+                        Log.d("StateListener", "State data: $stateData")
+
+                        val stateValue = stateData.state.toInt()
+                        val escapedMessage = stateData.reason.message.replace("'", "\\'")  // Ensure message is escaped correctly
+                        val escapedImg = stateData.reason.img.replace("'", "\\'")  // Escape img URL
+                        val moveable = stateValue != 2
+
+                        // Build JavaScript code dynamically
+                        val js = StringBuilder()
+                        js.append("""
+                    (function() {
+                        const currentPage = window.location.pathname.split('/').pop();
+                """.trimIndent())
+
+                        if (stateValue >= 2) {
+                            js.append("""
+                        if (currentPage !== 'index.html') {
+                            const basePath = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+                            window.location.href = basePath + 'index.html';
+                            return;
+                        }
+                    """.trimIndent())
+                        }
+
+                        if (stateValue >= 1) {
+                            js.append("if (currentPage === 'index.html') {")
+                            if (moveable) {
+                                js.append("""
+                            document.getElementById('closeicon').style.display = 'block';
+                            document.getElementById('closebutton').style.display = 'block';
+                            window.moveable = true;
+                        """.trimIndent())
+                            } else {
+                                js.append("""
+                            window.moveable = false;
+                            document.getElementById('closeicon').style.display = 'none';
+                            document.getElementById('closebutton').style.display = 'none';
+                        """.trimIndent())
+                            }
+
+                            js.append("""
+                        document.getElementById('modal-name').innerHTML = '$escapedMessage';
+                        document.getElementById('alertbox').classList.add('active');
+                    """.trimIndent())
+
+                            if (stateData.reason.img != null && stateData.reason.img != "null" && stateData.reason.img.isNotEmpty()) {
+                                js.append("""
+                            document.getElementById('modal-image').src = '$escapedImg';
+                            document.getElementById('modal-image').style.display = 'block';
+                        """.trimIndent())
+                            }
+
+                            js.append("}})();")  // Closing the JS function
+                        } else {
+                            js.append("""
+                        document.getElementById('alertbox').classList.remove('active');
+                        show('startface', 'login-container');
+                    """.trimIndent())
+                        }
+
+                        Log.d("StateListener", "JavaScript to execute: $js")
+
+                        // Run JavaScript in the WebView on the main thread
+                        activity.runOnUiThread {
+                            webView.evaluateJavascript(js.toString(), null)
+                        }
+                    } else {
+                        Log.d("StateListener", "State data is null")
+
+                        // Handle case where stateData is null
+                        val js = """
+                    document.getElementById('alertbox').classList.remove('active');
+                    show('startface', 'login-container');
+                """.trimIndent()
+
+                        activity.runOnUiThread {
+                            webView.evaluateJavascript(js, null)
+                        }
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("StateListener", "StateListener cancelled", error.toException())
+                }
+            }
+
+            // Add the ValueEventListener to the Firebase reference
+            stateRef?.addValueEventListener(stateListener!!)
+            Log.d("StateListener", "Listener added for store: $store")
+        }
+
+
         @JavascriptInterface
         fun postMessage(data: String) {
             Log.d("WebAppInterface", "Received data: $data")
@@ -294,6 +473,9 @@ class MainActivity : AppCompatActivity() {
                                     activity.runOnUiThread {
                                         webView.evaluateJavascript(jsCode, null)
                                     }
+
+                                    addStateListener(store)  // 🔁 상태 리스너 연결
+
                                 } else {
                                     auth.signOut()
                                     activity.runOnUiThread {
@@ -317,6 +499,14 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
 
+        }
+
+
+        @JavascriptInterface
+        fun clearStateListener() {
+            stateListener?.let { stateRef?.removeEventListener(it) }
+            stateRef = null
+            stateListener = null
         }
 
         @JavascriptInterface
@@ -354,101 +544,12 @@ class MainActivity : AppCompatActivity() {
                                 activity.runOnUiThread {
                                     webView.evaluateJavascript(jsCode, null)
                                 }
-                                val stateRef = FirebaseDatabase.getInstance().getReference("/people/data/$store/state")
-                                stateRef.addValueEventListener(object : ValueEventListener {
-                                    override fun onDataChange(snapshot: DataSnapshot) {
-                                        val stateData = snapshot.getValue(StateData::class.java)
 
-                                        if (stateData != null) {
-                                            val stateValue = stateData.state.toInt()
-                                            val escapedMessage = stateData.reason.message.replace("'", "\\'")
-                                            val escapedImg = stateData.reason.img.replace("'", "\\'")
-                                            val moveable = stateValue != 2
-                                            Log.d("DEBUG", "state = ${stateData.state}, moveable = $moveable")
-
-                                            val js = StringBuilder()
-                                            js.append("""
-                                      (function() {
-                                       const currentPage = window.location.pathname.split('/').pop();
-                                     """.trimIndent())
-
-                                            // 2 이상이면 index.html로 리디렉션 (index가 아닐 때만)
-                                            if (stateValue >= 2) {
-                                                js.append("""
-                                         if (currentPage !== 'index.html') {
-                                          const basePath = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
-                                         window.location.href = basePath + 'index.html';
-                                            return;
-                                        }
-                                      """.trimIndent())
-                                            }
-
-                                            // 1 이상이면 index.html에서 alert 띄움
-                                            if (stateValue >= 1) {
-                                                js.append("""
-                                        if (currentPage === 'index.html') {
-                                        """.trimIndent())
-
-                                                if (moveable) {
-                                                    js.append("""
-                                                document.getElementById('closeicon').style.display = 'block';
-                                                document.getElementById('closebutton').style.display = 'block';
-                                                window.moveable = true;
-                                            """.trimIndent())
-                                                } else {
-                                                    js.append("""
-                                                        window.moveable = false;
-                                                        document.getElementById('closeicon').style.display = 'none';
-                                                        document.getElementById('closebutton').style.display = 'none';
-                                                """.trimIndent())
-                                                }
-
-                                                js.append("""
-                                            document.getElementById('modal-name').innerHTML = '$escapedMessage';
-                                            document.getElementById('alertbox').classList.add('active');
-                                        """.trimIndent())
-
-                                                if (stateData.reason.img != null && stateData.reason.img != "null" && stateData.reason.img.isNotEmpty()) {
-                                                    js.append("""
-                                                document.getElementById('modal-image').src = '$escapedImg';
-                                                document.getElementById('modal-image').style.display = 'block';
-                                            """.trimIndent())
-                                                }
-
-                                                js.append("}})();")
-                                            } else {
-                                                // state < 1
-                                                js.append("""
-                                            document.getElementById('alertbox').classList.remove('active');
-                                            show('startface', 'login-container');
-                                        """.trimIndent())
-                                            }
-
-                                            activity.runOnUiThread {
-                                                webView.evaluateJavascript(js.toString(), null)
-                                            }
-
-                                        } else {
-                                            val js = """
-                                       document.getElementById('alertbox').classList.remove('active');
-                                       show('startface', 'login-container');
-                                       """.trimIndent()
-
-                                            activity.runOnUiThread {
-                                                webView.evaluateJavascript(js, null)
-                                            }
-                                        }
-                                    }
-
-                                    override fun onCancelled(error: DatabaseError) {
-                                        // 데이터베이스 오류가 발생했을 때 처리
-                                        Log.e("Firebase", "StateListener error", error.toException())
-                                    }
-                                })
+                                addStateListener(store)  // 🔁 상태 리스너 연결
                             } else {
                                 auth.signOut()
                                 activity.runOnUiThread {
-                                    webView.evaluateJavascript("loginfail('이메일이 일치 하지 않습니다.');", null)
+                                    webView.evaluateJavascript("loginfail('이메일이 일치하지 않습니다.');", null)
                                 }
                             }
                         }
@@ -469,7 +570,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-
 
         @JavascriptInterface
     fun signOut() {
@@ -582,6 +682,13 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
+        }
+
+        @JavascriptInterface
+        fun logOut() {
+            auth.signOut() // Firebase 로그아웃
+            // 상태 리스너를 제거
+            clearStateListener()
         }
     }
 
