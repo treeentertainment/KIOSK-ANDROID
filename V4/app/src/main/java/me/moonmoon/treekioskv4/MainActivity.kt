@@ -43,6 +43,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        if (!isConnected(this)) {
+         Toast.makeText(this, "인터넷 연결이 없습니다!", Toast.LENGTH_SHORT).show()
+         finish() // or disable functionality
+         }
         val prefs = getSharedPreferences("prefs", MODE_PRIVATE)
 
         // 현재 앱의 첫 설치 시간 가져오기
@@ -145,6 +149,13 @@ class MainActivity : AppCompatActivity() {
         webView.loadUrl("file:///android_asset/index.html")
     }
 
+    fun isConnected(context: Context): Boolean {
+    val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    val network = cm.activeNetwork ?: return false
+    val capabilities = cm.getNetworkCapabilities(network) ?: return false
+    return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+    }
+    
     fun addShortcut(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // 정확하게 context를 통해 시스템 서비스 가져오기
@@ -712,6 +723,4 @@ class MainActivity : AppCompatActivity() {
         window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             super.onDestroy()
     }
-
-
 }
