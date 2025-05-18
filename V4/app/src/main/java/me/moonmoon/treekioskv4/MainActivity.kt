@@ -608,7 +608,7 @@ class MainActivity : AppCompatActivity() {
         
             // 전체 rootJson에 "cafe"와 "service" 삽입
             rootJson.put("cafe", cafe)
-            rootJson.put("service", buildArray(snapshot.child("service")))
+            rootJson.put("services", buildArray(snapshot.child("services")))
         
             // 웹뷰에 전달할 JS 코드
             val jsCode = "javascript:display($rootJson);"
