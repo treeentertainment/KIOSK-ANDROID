@@ -264,6 +264,9 @@ function selectoption(item) {
       if (maxvalue <= 0) {
         isfull();
         return;
+      } else if(data.status === false) {
+        const message = JSON.stringify({ type: "noselect"});
+        return;
       } else {
         input.max = maxvalue;
       }
