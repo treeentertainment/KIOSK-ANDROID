@@ -31,6 +31,9 @@ import android.content.pm.ShortcutManager
 import android.content.pm.ShortcutInfo
 import android.graphics.drawable.Icon
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.widget.Toast
 
 class MainActivity : AppCompatActivity() {
     private lateinit var webView: WebView
