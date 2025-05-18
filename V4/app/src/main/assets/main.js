@@ -84,7 +84,7 @@ function getOrder() {
     return JSON.parse(localStorage.getItem('order')) || [];
 }
 
-function display(cafe) {
+function display(data) {
     window.localStorage.removeItem('order');
     const allcontent = document.getElementById("all");
     // 초기화
@@ -92,8 +92,6 @@ function display(cafe) {
       container.innerHTML = '';
       container.className = 'menu-grid page'; // page 클래스 유지
     });
-
-  console.log("받은 items:", cafe); // 추가해보세요
 
     function createMenuItem(item) {
       const card = document.createElement('div');
@@ -195,12 +193,12 @@ function display(cafe) {
       return card;
     }
 
-  const allItems = [
-        ...(cafe.drinks || []).map(item => ({ ...item, type: 'drink' })),
-        ...(cafe.foods || []).map(item => ({ ...item, type: 'food' })),
-        ...(cafe.service || []).map(item => ({ ...item, type: 'service' }))
+    const allItems = [
+      ...(data.cafe.drinks || []).map(item => ({ ...item, type: 'drink' })),
+      ...(data.cafe.foods || []).map(item => ({ ...item, type: 'food' })),
+      ...(data.services || []).map(item => ({ ...item, type: 'service' }))
     ];
-
+ 
     console.log("item 개수:", allItems.length);
     const fragment = document.createDocumentFragment();
 
