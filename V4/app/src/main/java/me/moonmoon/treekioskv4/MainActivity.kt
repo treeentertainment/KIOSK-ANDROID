@@ -21,7 +21,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.app.Activity
 import com.google.firebase.database.ServerValue
-import android.view.WindowManager // ✅ 이 줄을 추가
+import android.view.WindowManager
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -586,13 +586,12 @@ class MainActivity : AppCompatActivity() {
 
         val databaseRef =
             FirebaseDatabase.getInstance().getReference("/people/data/$safeNumber/menu")
-
-        Log.d("MenuData", "Number: $safeNumber")
-
-        databaseRef.get().addOnSuccessListener { snapshot ->
+            databaseRef.get().addOnSuccessListener { snapshot ->
             val cafeSnapshot = snapshot.child("cafe")
+            val rootJson = JSONObject()
             val cafe = JSONObject()
-
+        
+            // 함수: DataSnapshot → JSONArray
             fun buildArray(snapshot: DataSnapshot): JSONArray {
                 val arr = JSONArray()
                 for (item in snapshot.children) {
@@ -602,15 +601,19 @@ class MainActivity : AppCompatActivity() {
                 }
                 return arr
             }
-
+        
+            // "cafe" 안의 "drinks"와 "foods"
             cafe.put("drinks", buildArray(cafeSnapshot.child("drinks")))
             cafe.put("foods", buildArray(cafeSnapshot.child("foods")))
-            cafe.put("service", buildArray(snapshot.child("service")))
-
-            val result = cafe // <-- JSONObject("cafe": {...}) 가 아니라 cafe 자체만 넘김
-
-            val jsCode = "javascript:display($result);"
-
+        
+            // 전체 rootJson에 "cafe"와 "service" 삽입
+            rootJson.put("cafe", cafe)
+            rootJson.put("service", buildArray(snapshot.child("service")))
+        
+            // 웹뷰에 전달할 JS 코드
+            val jsCode = "javascript:display($rootJson);"
+        
+            // WebView에 실행
             webView.post {
                 webView.evaluateJavascript(jsCode, null)
             }
