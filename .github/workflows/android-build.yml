@@ -4,8 +4,7 @@ on:
   push:
     branches:
       - main
-      - dev
-
+      
 jobs:
   build:
     name: Build Android App
