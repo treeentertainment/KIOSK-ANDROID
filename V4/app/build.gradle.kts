@@ -12,7 +12,7 @@ android {
         applicationId = "me.moonmoon.treekioskv4"
         minSdk = 21
         targetSdk = 35
-        versionCode = 2
+        versionCode = 3
         versionName = "4.2"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

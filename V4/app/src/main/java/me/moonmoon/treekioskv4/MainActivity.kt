@@ -333,6 +333,16 @@ class MainActivity : AppCompatActivity() {
         private var stateListener: ValueEventListener? = null
         private var stateRef: DatabaseReference? = null
 
+        fun escapeJsString(input: String?): String {
+            return input
+                ?.replace("\\", "\\\\")
+                ?.replace("'", "\\'")
+                ?.replace("\"", "\\\"")
+                ?.replace("\n", "\\n")
+                ?.replace("\r", "")  // 윈도우 개행 제거
+                ?: ""
+        }
+        
         private fun addStateListener(store: String) {
             Log.d("StateListener", "Adding listener for store: $store")
 
@@ -348,8 +358,8 @@ class MainActivity : AppCompatActivity() {
                         Log.d("StateListener", "State data: $stateData")
 
                         val stateValue = stateData.state.toInt()
-                        val escapedMessage = stateData.reason.message.replace("'", "\\'")  // Ensure message is escaped correctly
-                        val escapedImg = stateData.reason.img.replace("'", "\\'")  // Escape img URL
+                        val escapedMessage = escapeJsString(stateData.reason.message)
+                        val escapedImg = escapeJsString(stateData.reason.img)
                         val moveable = stateValue != 2
 
                         // Build JavaScript code dynamically
