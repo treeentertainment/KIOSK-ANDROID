@@ -344,19 +344,13 @@ class MainActivity : AppCompatActivity() {
         }
         
         private fun addStateListener(store: String) {
-            Log.d("StateListener", "Adding listener for store: $store")
-
             stateRef = FirebaseDatabase.getInstance().getReference("/people/data/$store/state")
 
             stateListener = object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    Log.d("StateListener", "Data snapshot received")
-
                     val stateData = snapshot.getValue(StateData::class.java)
 
                     if (stateData != null) {
-                        Log.d("StateListener", "State data: $stateData")
-
                         val stateValue = stateData.state.toInt()
                         val escapedMessage = escapeJsString(stateData.reason.message)
                         val escapedImg = escapeJsString(stateData.reason.img)
@@ -413,17 +407,14 @@ class MainActivity : AppCompatActivity() {
                         document.getElementById('alertbox').classList.remove('active');
                         show('startface', 'login-container');
                     """.trimIndent())
+
+                            js.append("})();")  // Closing the JS function
                         }
-
-                        Log.d("StateListener", "JavaScript to execute: $js")
-
                         // Run JavaScript in the WebView on the main thread
                         activity.runOnUiThread {
                             webView.evaluateJavascript(js.toString(), null)
                         }
                     } else {
-                        Log.d("StateListener", "State data is null")
-
                         // Handle case where stateData is null
                         val js = """
                     document.getElementById('alertbox').classList.remove('active');
@@ -437,20 +428,17 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    Log.e("StateListener", "StateListener cancelled", error.toException())
+
                 }
             }
 
             // Add the ValueEventListener to the Firebase reference
             stateRef?.addValueEventListener(stateListener!!)
-            Log.d("StateListener", "Listener added for store: $store")
         }
 
 
         @JavascriptInterface
         fun postMessage(data: String) {
-            Log.d("WebAppInterface", "Received data: $data")
-
             activity.runOnUiThread {
                 try {
                     val json = JSONObject(data)
