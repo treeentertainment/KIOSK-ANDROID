@@ -537,7 +537,7 @@ class MainActivity : AppCompatActivity() {
                 val dbRef = FirebaseDatabase.getInstance().getReference("/people/admin/$email")
                 dbRef.get().addOnSuccessListener { adminSnapshot ->
                     val adminData = adminSnapshot.value as? Map<*, *>
-                    val enabled = adminData?.get("enabled") as? Boolean ?: false
+                    val enabled = (adminData?.get("access") as? Map<*, *>)?.get("kiosk") as? Boolean ?: false
 
                     val storeAny = adminData?.get("store")
                     val store = when (storeAny) {
