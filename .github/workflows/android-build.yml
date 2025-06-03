@@ -4,7 +4,13 @@ on:
   push:
     branches:
       - main
-      
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
 jobs:
   build:
     name: Build Android App
@@ -35,21 +41,11 @@ jobs:
       - name: Decode google-services.json
         run: |
           echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 -d > V4/app/google-services.json
-        # 복원 후 `V4/app/google-services.json` 위치에 배치
 
-      - name: Generate Keystore
-        working-directory: V4
+      # ✅ Keystore 복원
+      - name: Restore Keystore
         run: |
-          keytool -genkeypair -v \
-            -keystore app/keystore.jks \
-            -storepass ${{ secrets.KEYSTORE_PASSWORD }} \
-            -keypass ${{ secrets.KEY_PASSWORD }} \
-            -alias ${{ secrets.KEY_ALIAS }} \
-            -keyalg RSA -keysize 2048 -validity 10000 \
-            -dname "CN=moon, OU=treeentertainment, O=treeentertainment, L=seoul, ST=seoul, C=KR"
-          
-          base64 app/keystore.jks > app/keystore.jks.base64
-          echo "Keystore generated and encoded."
+          echo "${{ secrets.KEYSTORE_JKS_BASE64 }}" | base64 -d > V4/app/keystore.jks
 
       - name: Set up signing environment
         run: |
@@ -68,13 +64,14 @@ jobs:
             gradle-${{ runner.os }}-
 
       - name: Set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
-          java-version: '17'
+          distribution: 'temurin'
+          java-version: '21'
+          cache: gradle
 
       - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
         with:
           build-root-directory: V4
 
