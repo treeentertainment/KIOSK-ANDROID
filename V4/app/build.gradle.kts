@@ -69,9 +69,9 @@ dependencies {
     implementation("androidx.compose.material3:material3")
 
     // Firebase (최신 BOM 사용)
-    implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
-    implementation("com.google.firebase:firebase-auth")
-    implementation("com.google.firebase:firebase-database")
+    implementation(platform("com.google.firebase:firebase-bom:22.3.1"))
+    implementation("com.google.firebase:firebase-auth:22.3.1")
+    implementation("com.google.firebase:firebase-database:22.3.1")
 
     // Testing
     testImplementation("junit:junit:4.13.2")
