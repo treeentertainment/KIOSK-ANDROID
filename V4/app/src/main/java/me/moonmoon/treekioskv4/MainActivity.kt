@@ -417,9 +417,13 @@ class MainActivity : AppCompatActivity() {
                     } else {
                         // Handle case where stateData is null
                         val js = """
-                    document.getElementById('alertbox').classList.remove('active');
-                    show('startface', 'login-container');
-                """.trimIndent()
+                            (function() {
+                                document.getElementById('alertbox')?.classList.remove('active');
+                                if (typeof show === 'function') {
+                                    show('startface', 'login-container');
+                                }
+                            })();
+                        """.trimIndent()
 
                         activity.runOnUiThread {
                             webView.evaluateJavascript(js, null)
