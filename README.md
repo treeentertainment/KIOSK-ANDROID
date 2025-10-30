@@ -19,14 +19,12 @@
 
 > ## 저작권
 
-[![Static Badge](https://img.shields.io/badge/M-blue?style=for-the-badge&logo=github)
-](https://github.com/channel101)
+![Static Badge](https://img.shields.io/badge/tree%20entertainment-green?style=for-the-badge&label=link.now&link=https%3A%2F%2Flink.now%2Ftreeentertainment)
 
 > ## 문의
 
-[![Static Badge](https://img.shields.io/badge/M-blue?style=for-the-badge&logo=github)
-](mailto:contact@treeentertainment.tech)
+![Static Badge](https://img.shields.io/badge/tree%20entertainment-green?style=for-the-badge&label=link.now&link=https%3A%2F%2Flink.now%2Ftreeentertainment)
 
 > ## URL
 
-https://treekiosk.pages.dev
+![Static Badge](https://img.shields.io/badge/tree%20entertainment-green?style=for-the-badge&label=link.now&link=https%3A%2F%2Flink.now%2Ftreeentertainment)
