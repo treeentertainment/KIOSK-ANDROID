@@ -61,7 +61,7 @@ jobs:
           body: ${{ github.event.inputs.release_body }}
           draft: ${{ github.event.inputs.draft }}
           prerelease: ${{ github.event.inputs.release_type == 'pre-release' }}
-          artifacts: extracted/app-release.apk
+          artifacts: extracted/tech.treeentertainment.treekiosk.v4.apk
           artifactContentType: "application/vnd.android.package-archive"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
