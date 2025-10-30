@@ -10,14 +10,12 @@ on:
       tag_name:
         description: "Release tag (e.g. v1.0.0)"
         required: true
-        default: "V"
       release_title:
         description: "Release title"
         required: true
-        default: "V"
       release_body:
         description: "Release notes / content"
-        required: true
+        required: false
         default: ""
       draft:
         description: "Create as draft?"
@@ -27,7 +25,15 @@ on:
         options:
           - "true"
           - "false"
-
+      release_type:
+        description: "Release type"
+        required: true
+        default: "release"
+        type: choice
+        options:
+          - "release"
+          - "pre-release"
+          
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -38,7 +44,7 @@ jobs:
         with:
           workflow: build.yml
           workflow_conclusion: success
-          name: app-release-apk
+          name: android-release-apk
           path: extracted
 
       - name: Check extracted files
@@ -47,10 +53,10 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.event.inputs.tag_name }}
-          name: ${{ github.event.inputs.release_title }}
-          body: ${{ github.event.inputs.release_body }}
-          draft: ${{ github.event.inputs.draft }}
-          files: extracted/app-release.apk   # APK 파일 경로
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+         tag_name: ${{ github.event.inputs.tag_name }}
+         name: ${{ github.event.inputs.release_title }}   body: ${{ github.event.inputs.release_body }}
+         draft: ${{ github.event.inputs.draft }}
+         prerelease: ${{ github.event.inputs.release_type == 'pre-release' }}
+         files: extracted/app-release.apk
+       env:
+           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
