@@ -11,11 +11,13 @@ on:
       tag_name:
         description: "Release tag (e.g. v1.0.0)"
         required: true
+        default: "V"
       release_title:
         description: "Release title"
         required: true
+        default: "V"
       release_body:
-        description: "Release notes / content"
+        description: "Release notes (Markdown supported)"
         required: false
         default: ""
       draft:
@@ -51,14 +53,15 @@ jobs:
       - name: Check extracted files
         run: ls -R extracted
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+      - name: Create GitHub Release (Markdown supported)
+        uses: ncipollo/release-action@v1
         with:
-          tag_name: ${{ github.event.inputs.tag_name }}
+          tag: ${{ github.event.inputs.tag_name }}
           name: ${{ github.event.inputs.release_title }}
           body: ${{ github.event.inputs.release_body }}
           draft: ${{ github.event.inputs.draft }}
           prerelease: ${{ github.event.inputs.release_type == 'pre-release' }}
-          files: extracted/app-release.apk
+          artifacts: extracted/app-release.apk
+          artifactContentType: "application/vnd.android.package-archive"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
