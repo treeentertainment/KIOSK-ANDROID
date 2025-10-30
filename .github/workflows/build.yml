@@ -4,9 +4,13 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'V4/**'       # ✅ V4 폴더 내 변경이 있을 때만 실행
   pull_request:
     branches:
       - main
+    paths:
+      - 'V4/**'       # ✅ PR에서도 V4 폴더 내 변경이 있을 때만 실행
 
 permissions:
   contents: read
@@ -20,7 +24,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # ✅ Gradle Wrapper 체크 및 자동 푸시 (V4 기준)
+      # ✅ Gradle Wrapper 체크 및 자동 푸시
       - name: Check and Generate Gradle Wrapper if missing
         working-directory: V4
         run: |
