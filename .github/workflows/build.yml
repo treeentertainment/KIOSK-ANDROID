@@ -5,12 +5,14 @@ on:
     branches:
       - main
     paths:
-      - 'V4/**'       # ✅ V4 폴더 내 변경이 있을 때만 실행
+      - 'V4/**'                   # ✅ V4 폴더 내 변경
+      - '.github/workflows/build.yml'  # ✅ build.yml 변경 시 실행
   pull_request:
     branches:
       - main
     paths:
-      - 'V4/**'       # ✅ PR에서도 V4 폴더 내 변경이 있을 때만 실행
+      - 'V4/**'
+      - '.github/workflows/build.yml'
 
 permissions:
   contents: read
@@ -79,17 +81,22 @@ jobs:
         with:
           build-root-directory: V4
 
-      - name: Build Release APK
+      # ✅ 빌드 및 APK 이름 변경
+      - name: Build and Rename Release APK
         working-directory: V4
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-        run: ./gradlew assembleRelease --no-daemon --parallel --build-cache --configure-on-demand
+        run: |
+          ./gradlew assembleRelease --no-daemon --parallel --build-cache --configure-on-demand
+          cd app/build/outputs/apk/release
+          mv app-release.apk tech.treeentertainment.treekiosk.v4.apk
 
+      # ✅ 아티팩트 업로드
       - name: Upload Release APK as artifact
         uses: actions/upload-artifact@v4
         with:
           name: android-release-apk
-          path: V4/app/build/outputs/apk/release/app-release.apk
+          path: V4/app/build/outputs/apk/release/tech.treeentertainment.treekiosk.v4.apk
           if-no-files-found: error
