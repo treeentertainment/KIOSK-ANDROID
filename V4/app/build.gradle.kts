@@ -67,7 +67,7 @@ dependencies {
 
     // Firebase (최신 BOM 사용)
     implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
-    implementation("com.google.firebase:firebase-auth")      // = 22.3.1
+    implementation("com.google.firebase:firebase-auth:22.3.1")      // = 22.3.1
     implementation("com.google.firebase:firebase-database")  // = 20.3.1
 
 

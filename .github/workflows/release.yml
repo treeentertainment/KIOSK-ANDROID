@@ -1,0 +1,56 @@
+name: Release build
+run-name: Release ${{ github.event.inputs.tag_name }}
+permissions:
+  contents: write
+  actions: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "Release tag (e.g. v1.0.0)"
+        required: true
+        default: "V"
+      release_title:
+        description: "Release title"
+        required: true
+        default: "V"
+      release_body:
+        description: "Release notes / content"
+        required: true
+        default: ""
+      draft:
+        description: "Create as draft?"
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - "true"
+          - "false"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download latest artifact
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: build.yml
+          workflow_conclusion: success
+          name: app-release-apk
+          path: extracted
+
+      - name: Check extracted files
+        run: ls -R extracted
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.tag_name }}
+          name: ${{ github.event.inputs.release_title }}
+          body: ${{ github.event.inputs.release_body }}
+          draft: ${{ github.event.inputs.draft }}
+          files: extracted/app-release.apk   # APK 파일 경로
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
