@@ -20,11 +20,3 @@
 > ## 저작권
 
 ![Static Badge](https://img.shields.io/badge/tree%20entertainment-green?style=for-the-badge&label=link.now&link=https%3A%2F%2Flink.now%2Ftreeentertainment)
-
-> ## 문의
-
-![Static Badge](https://img.shields.io/badge/tree%20entertainment-green?style=for-the-badge&label=link.now&link=https%3A%2F%2Flink.now%2Ftreeentertainment)
-
-> ## URL
-
-![Static Badge](https://img.shields.io/badge/tree%20entertainment-green?style=for-the-badge&label=link.now&link=https%3A%2F%2Flink.now%2Ftreeentertainment)
