@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "tech.treeentertainment.treekiosk.v4"
-        minSdk = 21
+        minSdk = 23
         targetSdk = 36
         versionCode = 1
         versionName = "4.3.0"
@@ -67,8 +67,8 @@ dependencies {
 
     // Firebase (최신 BOM 사용)
     implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
-    implementation("com.google.firebase:firebase-auth:22.3.1")      // = 22.3.1
-    implementation("com.google.firebase:firebase-database")  // = 20.3.1
+    implementation("com.google.firebase:firebase-auth")      // = 
+    implementation("com.google.firebase:firebase-database")  // = 
 
 
     // Testing
