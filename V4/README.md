@@ -19,18 +19,13 @@
 
 4. 완료
 
-> ## 업데이트 상황
-
- - [x] 이미지 로딩 속도 개선
- - [X] apk 및 exe 만들기
-
 > ## 저작권
 
-[@202420505](https://github.com/202420505)
+[@channel101](https://github.com/channel101)
 
 > ## 문의
 
-[moonlight10529@gmail.com](mailto:moonlight10529@gmail.com)
+[treeentertainment](https://github.com/treeentertainment)
 
 > ## URL
 

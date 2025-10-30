@@ -1,19 +1,20 @@
 plugins {
-    id("com.android.application") version "8.4.0" // Android Gradle Plugin 최신 안정 버전
-    id("org.jetbrains.kotlin.android") version "1.9.24" // Kotlin 최신 안정 버전
-    id("com.google.gms.google-services") version "4.4.2" // 그대로 사용 가능
+    id("com.android.application") version "8.13.0" // Android Gradle Plugin 최신 안정 버전
+    id("org.jetbrains.kotlin.android") version "2.2.21" // Kotlin 최신 안정 버전
+    id("com.google.gms.google-services") version "4.4.4" // 그대로 사용 가능
+    id("org.jetbrains.kotlin.plugin.compose") // ✅ Compose Compiler 플러그인 추가
 }
 
 android {
-    namespace = "me.moonmoon.treekioskv4"
-    compileSdk = 34 // 안정성과 호환성 고려해 최신인 34 유지 추천
+    namespace = "tech.treeentertainment.treekiosk.v4"
+    compileSdk = 36
 
     defaultConfig {
-        applicationId = "me.moonmoon.treekioskv4"
+        applicationId = "tech.treeentertainment.treekiosk.v4"
         minSdk = 21
-        targetSdk = 34
-        versionCode = 4
-        versionName = "4.2.3"
+        targetSdk = 36
+        versionCode = 1
+        versionName = "4.3.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -48,37 +49,33 @@ android {
     buildFeatures {
         compose = true
     }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.14" // 최신 Compose Compiler 버전 (Kotlin 1.9.24 호환)
-    }
 }
 
 dependencies {
     // AndroidX
-    implementation("androidx.appcompat:appcompat:1.7.0")
-    implementation("androidx.core:core-ktx:1.13.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
-    implementation("androidx.activity:activity-compose:1.9.0")
+    implementation("androidx.appcompat:appcompat:1.7.1")
+    implementation("androidx.core:core-ktx:1.17.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.4")
+    implementation("androidx.activity:activity-compose:1.11.0")
 
     // Jetpack Compose BOM
-    implementation(platform("androidx.compose:compose-bom:2024.05.00"))
+    implementation(platform("androidx.compose:compose-bom:2025.10.01"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
 
     // Firebase (최신 BOM 사용)
-    implementation(platform("com.google.firebase:firebase-bom:32.2.0"))
+    implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
     implementation("com.google.firebase:firebase-auth")      // = 22.3.1
     implementation("com.google.firebase:firebase-database")  // = 20.3.1
 
 
     // Testing
     testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2024.05.00"))
+    androidTestImplementation("androidx.test.ext:junit:1.3.0")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
+    androidTestImplementation(platform("androidx.compose:compose-bom:2025.10.01"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
