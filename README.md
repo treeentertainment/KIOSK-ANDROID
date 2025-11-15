@@ -1,6 +1,6 @@
 # TREE KIOSK SYSTEM - ANDROID
 
-<img src="https://img.shields.io/badge/android-3DDC84?style=for-the-badge&logo=android&logoColor=white">
+<img src="https://img.shields.io/badge/android-3DDC84?style=for-the-badge&logo=android&logoColor=white"
 
 > ## 설치 방법
 
@@ -19,4 +19,4 @@
 
 > ## 저작권
 
-[![Static Badge](https://img.shields.io/badge/tree%20entertainment-green?style=for-the-badge&logo=github&label=github&link=https%3A%2F%2Fgithub.com%2Ftreeentertainment)](../../../)
+[![Static Badge](https://img.shields.io/badge/tree%20entertainment-green?style=for-the-badge&logo=github&label=github)](../../../)
