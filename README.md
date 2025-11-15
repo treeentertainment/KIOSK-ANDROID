@@ -19,8 +19,4 @@
 
 > ## 저작권
 
-![Static Badge](https://img.shields.io/badge/tree%20entertainment-green?style=for-the-badge&logo=github&label=github&link=https%3A%2F%2Fgithub.com%2Ftreeentertainment)
-
-> ## 링크
-
-![Static Badge](https://img.shields.io/badge/tree%20entertainment-green?style=for-the-badge&label=link.now&link=https%3A%2F%2Flink.now%2Ftreeentertainment)
+[![Static Badge](https://img.shields.io/badge/tree%20entertainment-green?style=for-the-badge&logo=github&label=github&link=https%3A%2F%2Fgithub.com%2Ftreeentertainment)](../../../)
