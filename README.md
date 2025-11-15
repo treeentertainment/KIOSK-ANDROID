@@ -1,10 +1,10 @@
 # TREE KIOSK SYSTEM - ANDROID
 
-<img src="https://img.shields.io/badge/android-3DDC84?style=for-the-badge&logo=android&logoColor=white">
+[![Static Badge](https://img.shields.io/badge/android-3DDC84?style=for-the-badge&logo=android&logoColor=white)](../../releases/latest)
 
 > ## 설치 방법
 
-1. [다운로드](https://github.com/treeentertainment/KIOSK-ANDROID/releases/latest)
+1. [다운로드](../../releases/latest)
 
 2. 설치
 
